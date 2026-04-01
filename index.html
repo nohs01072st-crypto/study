@@ -2,116 +2,127 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>노씨 가족 스터디 트래커</title>
-<!-- ── iOS PWA ── -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>스터디 트래커</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="스터디 트래커">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d1117">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ── 외부 폰트 없이 아이폰 기본 한글 폰트 사용 ── */
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--card:#1c2128;
-  --b:rgba(255,255,255,0.08);--b2:rgba(255,255,255,0.18);
+  --b:rgba(255,255,255,0.09);--b2:rgba(255,255,255,0.2);
   --tx:#e6edf3;--tx2:#8b949e;--tx3:#484f58;
-  --am:#d29922;--am2:#e3b341;--am-bg:rgba(210,153,34,0.12);
+  --am:#d29922;--am2:#e3b341;--am-bg:rgba(210,153,34,0.13);
   --gn:#238636;--gn2:#3fb950;--gn-bg:rgba(35,134,54,0.15);
   --rd:#da3633;--rd-bg:rgba(218,54,51,0.15);
   --bl2:#388bfd;--bl-bg:rgba(56,139,253,0.15);
   --pu-bg:rgba(139,87,229,0.15);--pu2:#a371f7;
-  --tl-bg:rgba(56,189,248,0.12);--tl2:#38bdf8;
-  --r:12px;--r2:8px;
+  --tl2:#38bdf8;--tl-bg:rgba(56,189,248,0.12);
   --c1:#f97316;--c2:#22c55e;--c3:#a78bfa;
+  --r:14px;--r2:10px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.6;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom);
-  padding-left:env(safe-area-inset-left);
-  padding-right:env(safe-area-inset-right);
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:none;}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  font-family:-apple-system,'Apple SD Gothic Neo','Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;line-height:1.6;
+  padding-top:var(--safe-top);
 }
-/* iOS: prevent zoom on input focus — form inputs only (16px minimum) */
-.fi,.fi:focus{font-size:16px !important;}
-select.fi{font-size:15px !important;}
-/* iOS: smooth scrolling */
-.modal,.frame{-webkit-overflow-scrolling:touch;}
-button{-webkit-user-select:none;user-select:none;}
+/* ── 아이폰 입력 줌 방지 ── */
+input,select,textarea{
+  -webkit-appearance:none;appearance:none;
+  font-family:inherit;font-size:16px;
+  background:var(--bg3);color:var(--tx);
+  border:1.5px solid var(--b2);border-radius:var(--r2);
+  padding:10px 13px;outline:none;width:100%;
+  transition:border-color .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--am);}
+textarea{resize:vertical;min-height:80px;}
+button{-webkit-user-select:none;user-select:none;font-family:inherit;}
+
+/* ── 스크린 ── */
 .screen{display:none;}.screen.active{display:block;}
-#sc-login{display:none;align-items:center;justify-content:center;flex-direction:column;gap:32px;padding:50px 24px;min-height:100vh;}
-#sc-login.active{display:flex;}
+#sc-guide,.sc-flex{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;gap:28px;}
+#sc-guide.active,.sc-flex.active{display:flex;}
 #sc-pin{display:none;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;}
 #sc-pin.active{display:flex;}
 
-/* Login */
+/* ── 가이드 화면 ── */
+.guide-box{background:var(--card);border:1.5px solid var(--b2);border-radius:var(--r);padding:28px 22px;width:100%;max-width:380px;}
+.guide-step{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--b);}
+.guide-step:last-child{border-bottom:none;}
+.guide-num{width:28px;height:28px;background:var(--am);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;margin-top:1px;}
+.guide-txt{font-size:14px;line-height:1.6;}
+.guide-txt strong{color:var(--am2);}
+.guide-txt small{color:var(--tx3);font-size:12px;display:block;margin-top:2px;}
+
+/* ── 로그인 ── */
+#sc-login{display:none;align-items:center;justify-content:center;flex-direction:column;gap:28px;min-height:100vh;padding:50px 22px;}
+#sc-login.active{display:flex;}
 .logo{font-size:52px;animation:pop .4s ease;}
 @keyframes pop{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
-.login-title{font-size:24px;font-weight:700;text-align:center;}
-.login-sub{color:var(--tx2);font-size:13px;text-align:center;margin-top:6px;}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:400px;}
-.role-card{background:var(--card);border:2px solid var(--b);border-radius:var(--r);padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;}
-.role-card:hover{transform:translateY(-3px);}
-.role-card.c1:hover,.role-card.c1.sel{border-color:var(--c1);}
-.role-card.c2:hover,.role-card.c2.sel{border-color:var(--c2);}
-.role-card.c3:hover,.role-card.c3.sel{border-color:var(--c3);}
-.role-card.par:hover{border-color:var(--am);}
-.rc-icon{font-size:38px;margin-bottom:10px;}
-.rc-name{font-size:16px;font-weight:700;}
-.rc-sub{font-size:11px;color:var(--tx2);margin-top:3px;}
-.chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-top:6px;}
-.chip1{background:rgba(249,115,22,.15);color:var(--c1);}
-.chip2{background:rgba(34,197,94,.15);color:var(--c2);}
-.chip3{background:rgba(167,139,250,.15);color:var(--c3);}
+.role-card{background:var(--card);border:2px solid var(--b);border-radius:var(--r);padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;}
+.role-card:active{transform:scale(.95);}
+.role-card.c1:active,.role-card.c1.act{border-color:var(--c1);background:rgba(249,115,22,.08);}
+.role-card.c2:active,.role-card.c2.act{border-color:var(--c2);background:rgba(34,197,94,.08);}
+.role-card.c3:active,.role-card.c3.act{border-color:var(--c3);background:rgba(167,139,250,.08);}
+.role-card.par:active{border-color:var(--am);background:var(--am-bg);}
+.rc-icon{font-size:40px;margin-bottom:10px;}
+.rc-name{font-size:17px;font-weight:700;}
+.rc-sub{font-size:12px;color:var(--tx2);margin-top:3px;}
+.chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:600;margin-top:6px;}
+.ch1{background:rgba(249,115,22,.15);color:var(--c1);}
+.ch2{background:rgba(34,197,94,.15);color:var(--c2);}
+.ch3{background:rgba(167,139,250,.15);color:var(--c3);}
 
-/* PIN */
-.pin-card{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:36px 32px;width:100%;max-width:320px;text-align:center;}
-.pin-inp{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r2);color:var(--tx);font-size:28px;letter-spacing:12px;padding:12px;text-align:center;outline:none;margin-bottom:8px;transition:border-color .15s;}
+/* ── PIN ── */
+.pin-card{background:var(--card);border:1.5px solid var(--b2);border-radius:var(--r);padding:36px 28px;width:100%;max-width:320px;text-align:center;}
+.pin-inp{width:100%;background:var(--bg3);border:1.5px solid var(--b2);border-radius:var(--r2);color:var(--tx);font-size:32px !important;letter-spacing:14px;padding:14px;text-align:center;outline:none;transition:border-color .15s;}
 .pin-inp:focus{border-color:var(--am);}
-.pin-err{color:#ff7b72;font-size:12px;min-height:20px;margin-bottom:12px;}
+.pin-err{color:#ff7b72;font-size:13px;min-height:22px;margin-bottom:12px;}
 
-/* App frame */
-.frame{max-width:740px;margin:0 auto;padding:0 16px calc(80px + env(safe-area-inset-bottom));}
-.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b);margin-bottom:14px;position:sticky;top:0;background:var(--bg);z-index:50;}
-.app-title{font-size:16px;font-weight:700;}
-.pt-badge{display:flex;align-items:center;gap:5px;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;border:1px solid;}
+/* ── 앱 프레임 ── */
+.frame{max-width:740px;margin:0 auto;padding:0 16px;padding-bottom:calc(80px + var(--safe-bot));}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--b);margin-bottom:16px;position:sticky;top:0;background:var(--bg);z-index:50;}
+.app-title{font-size:17px;font-weight:700;}
+.pt-badge{display:flex;align-items:center;gap:5px;border-radius:20px;padding:5px 13px;font-size:13px;font-weight:700;border:1.5px solid;}
+.icon-btn{background:transparent;border:1.5px solid var(--b2);color:var(--tx2);cursor:pointer;font-size:14px;padding:7px 12px;border-radius:var(--r2);transition:all .15s;}
+.icon-btn:active{background:var(--bg3);color:var(--tx);}
 
-/* Child color accents */
-.acc-1{background:rgba(249,115,22,.12);color:var(--c1);border-color:rgba(249,115,22,.35);}
-.acc-2{background:rgba(34,197,94,.12);color:var(--c2);border-color:rgba(34,197,94,.35);}
-.acc-3{background:rgba(167,139,250,.12);color:var(--c3);border-color:rgba(167,139,250,.35);}
-.acc-par{background:var(--am-bg);color:var(--am2);border-color:rgba(210,153,34,.3);}
-.dot-1{color:var(--c1);}.dot-2{color:var(--c2);}.dot-3{color:var(--c3);}
-
-.icon-btn{background:transparent;border:1px solid var(--b2);color:var(--tx2);cursor:pointer;font-size:13px;padding:6px 10px;border-radius:var(--r2);transition:all .15s;font-family:inherit;}
-.icon-btn:hover{background:var(--bg3);color:var(--tx);}
-
-/* Weekly bar */
-.wk-bar{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:12px 15px;margin-bottom:14px;}
-.wk-hd{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px;}
-.wk-track{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+/* ── 주간 바 ── */
+.wk-bar{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:13px 15px;margin-bottom:14px;}
+.wk-hd{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;}
+.wk-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
 .wk-fill{height:100%;border-radius:4px;transition:width .5s ease;}
 .wk-foot{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);margin-top:5px;}
 
-/* Child selector (parent) */
-.child-sel{display:flex;gap:6px;margin-bottom:16px;background:var(--bg2);border-radius:var(--r);padding:4px;}
-.csel-btn{flex:1;background:transparent;border:none;color:var(--tx2);padding:8px 6px;border-radius:var(--r2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .15s;}
+/* ── 자녀 선택 (부모) ── */
+.child-sel{display:flex;gap:5px;margin-bottom:14px;background:var(--bg2);border-radius:var(--r);padding:4px;}
+.csel-btn{flex:1;background:transparent;border:none;color:var(--tx2);padding:9px 4px;border-radius:var(--r2);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;}
 .csel-btn.active{background:var(--card);color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.4);}
 .csel-btn.c1.active{color:var(--c1);}.csel-btn.c2.active{color:var(--c2);}.csel-btn.c3.active{color:var(--c3);}
 
-/* Tabs */
-.tabs{display:flex;gap:3px;background:var(--bg2);border-radius:var(--r);padding:4px;margin-bottom:16px;overflow-x:auto;}
-.tb{flex:1;background:transparent;border:none;color:var(--tx2);padding:7px 3px;border-radius:var(--r2);cursor:pointer;font-size:11px;font-weight:500;font-family:inherit;white-space:nowrap;min-width:48px;transition:all .15s;}
+/* ── 탭 ── */
+.tabs{display:flex;gap:3px;background:var(--bg2);border-radius:var(--r);padding:4px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tabs::-webkit-scrollbar{display:none;}
+.tb{flex:1;background:transparent;border:none;color:var(--tx2);padding:9px 3px;border-radius:var(--r2);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;min-width:50px;transition:all .15s;}
 .tb.active{background:var(--card);color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.4);}
 .tab-pane{display:none;}.tab-pane.active{display:block;animation:fi .2s ease;}
-@keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 
-/* Cards */
-.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px;}
-.sec-lbl{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;}
+/* ── 카드 & 레이블 ── */
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:18px;margin-bottom:12px;}
+.sec-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:13px;}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:500;}
+/* ── 배지 ── */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 9px;border-radius:12px;font-weight:600;}
 .b-sub{background:var(--bl-bg);color:var(--bl2);}
 .b-pts{background:var(--am-bg);color:var(--am2);}
 .b-pend{background:var(--pu-bg);color:var(--pu2);}
@@ -119,202 +130,235 @@ button{-webkit-user-select:none;user-select:none;}
 .b-ng{background:var(--rd-bg);color:#ff7b72;}
 .b-dt{color:var(--tx3);font-size:11px;}
 
-/* Tasks */
-.task-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);margin-bottom:8px;transition:border-color .15s;}
-.task-item:hover{border-color:var(--b2);}
+/* ── 과제 아이템 ── */
+.task-item{display:flex;align-items:flex-start;gap:13px;padding:14px;background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);margin-bottom:9px;}
 .task-item.done{opacity:.5;}.task-item.done .ti-title{text-decoration:line-through;}
-.chk{width:22px;height:22px;border:2px solid var(--b2);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px;transition:all .15s;}
+.chk{width:26px;height:26px;border:2px solid var(--b2);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px;transition:all .15s;}
 .chk.on{background:var(--am);border-color:var(--am);color:#000;font-weight:700;}
 .chk.pend{background:rgba(139,87,229,.2);border-color:#8957e5;}
 .ti-body{flex:1;min-width:0;}
-.ti-title{font-size:14px;font-weight:500;}
-.ti-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.ti-title{font-size:15px;font-weight:600;}
+.ti-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:6px;}
 
-/* Stats */
+/* ── 통계 ── */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
-.stat-c{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:13px;text-align:center;}
-.stat-v{font-size:20px;font-weight:700;color:var(--am2);}
+.stat-c{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;text-align:center;}
+.stat-v{font-size:22px;font-weight:700;color:var(--am2);}
 .stat-s{font-size:10px;color:var(--gn2);margin-top:1px;font-weight:600;}
 .stat-l{font-size:11px;color:var(--tx2);margin-top:3px;}
 
-/* Study log */
-.log-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+/* ── 공부 로그 ── */
+.log-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:15px;margin-bottom:10px;}
 .log-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
-.log-title{font-weight:600;font-size:14px;}
+.log-title{font-weight:700;font-size:15px;}
 .log-meta{font-size:12px;color:var(--tx2);margin-top:3px;}
-.log-box{background:var(--bg3);border-radius:var(--r2);padding:10px;font-size:13px;color:var(--tx2);margin-bottom:8px;line-height:1.6;}
+.log-box{background:var(--bg3);border-radius:var(--r2);padding:11px;font-size:13px;color:var(--tx2);margin-bottom:8px;line-height:1.7;}
 .log-img{width:100%;max-height:200px;object-fit:contain;border-radius:var(--r2);border:1px solid var(--b);margin-bottom:8px;cursor:pointer;}
 
-/* Point formula box */
-.pts-formula{background:var(--bg);border:1px solid var(--b2);border-radius:var(--r2);padding:12px;margin:10px 0;font-size:12px;}
+/* ── 포인트 공식 ── */
+.pts-formula{background:var(--bg);border:1.5px solid var(--b2);border-radius:var(--r2);padding:13px;margin:10px 0;font-size:13px;}
 .pf-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
-.pf-row.total{border-top:1px solid var(--b2);margin-top:6px;padding-top:8px;font-weight:700;font-size:13px;}
-.pf-val{font-weight:600;color:var(--am2);}
+.pf-row.total{border-top:1px solid var(--b2);margin-top:6px;padding-top:9px;font-weight:700;font-size:14px;}
+.pf-val{font-weight:700;color:var(--am2);}
 .pf-mul{color:var(--pu2);}
 .pf-bonus{color:var(--gn2);}
 
-/* Quiz */
-.quiz-q{font-size:13px;font-weight:600;margin-bottom:8px;}
-.quiz-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
-.quiz-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r2);border:1px solid var(--b);cursor:pointer;font-size:13px;transition:all .15s;}
-.quiz-opt:hover{border-color:var(--am);}
-.quiz-opt.sel{border-color:var(--am);background:var(--am-bg);}
+/* ── 퀴즈 ── */
+.quiz-q{font-size:14px;font-weight:600;margin-bottom:9px;}
+.quiz-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.quiz-opt{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:var(--r2);border:1.5px solid var(--b);cursor:pointer;font-size:14px;transition:all .15s;}
+.quiz-opt:active,.quiz-opt.sel{border-color:var(--am);background:var(--am-bg);}
 .quiz-opt.ok{border-color:var(--gn2);background:var(--gn-bg);color:var(--gn2);}
 .quiz-opt.ng{border-color:#ff7b72;background:var(--rd-bg);color:#ff7b72;}
-.quiz-res{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r2);font-size:12px;font-weight:600;margin-top:8px;}
+.quiz-res{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:var(--r2);font-size:13px;font-weight:600;margin-top:8px;}
 .qr-good{background:var(--gn-bg);color:var(--gn2);}
 .qr-bad{background:var(--rd-bg);color:#ff7b72;}
 
-/* Image upload */
-.img-zone{border:2px dashed var(--b2);border-radius:var(--r);padding:18px;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;margin-bottom:12px;}
-.img-zone:hover{border-color:var(--am);}
-.img-zone.has{padding:4px;border-style:solid;}
-.img-zone img{width:100%;max-height:180px;object-fit:contain;border-radius:8px;}
+/* ── 이미지 업로드 ── */
+.img-zone{border:2px dashed var(--b2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;position:relative;margin-bottom:12px;}
+.img-zone:active,.img-zone.has{border-color:var(--am);}
+.img-zone.has{padding:5px;border-style:solid;}
+.img-zone img{width:100%;max-height:180px;object-fit:contain;border-radius:9px;}
 .img-ph{color:var(--tx3);font-size:13px;}
-.img-clr{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;font-size:14px;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.img-clr{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.75);border:none;color:#fff;font-size:15px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* Payout */
-.payout-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;}
-.payout-child-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--b);}
-.payout-child-row:last-child{border-bottom:none;}
-.payout-name{font-weight:600;font-size:14px;}
-.payout-pts{font-size:13px;color:var(--tx2);}
-.payout-won{font-size:15px;font-weight:700;color:var(--am2);}
-.payout-total-row{display:flex;justify-content:space-between;align-items:center;background:var(--am-bg);border:1px solid rgba(210,153,34,.3);border-radius:var(--r2);padding:12px 14px;margin-top:12px;}
-.payout-hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b);}
-.payout-hist-item:last-child{border-bottom:none;}
+/* ── 정산 ── */
+.payout-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:15px;margin-bottom:10px;}
+.pc-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--b);}
+.pc-row:last-child{border-bottom:none;}
+.pc-name{font-weight:700;font-size:15px;}
+.pc-pts{font-size:12px;color:var(--tx2);margin-top:2px;}
+.pc-won{font-size:16px;font-weight:700;color:var(--am2);}
+.payout-total{display:flex;justify-content:space-between;align-items:center;background:var(--am-bg);border:1.5px solid rgba(210,153,34,.3);border-radius:var(--r2);padding:14px 16px;margin-top:12px;}
+.ph-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b);}
+.ph-item:last-child{border-bottom:none;}
 
-/* Hist */
-.hist-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b);}
+/* ── 내역 ── */
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b);}
 .hist-item:last-child{border-bottom:none;}
-.hist-pts{font-weight:700;font-size:13px;}
-.p-plus{color:var(--gn2);}
-.p-minus{color:#ff7b72;}
+.hpts{font-weight:700;font-size:13px;}
+.p-plus{color:var(--gn2);}.p-minus{color:#ff7b72;}
 
-/* Reward */
-.rw-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+/* ── 보상 ── */
+.rw-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 
-/* Approval */
-.appr-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:13px;margin-bottom:10px;}
-.appr-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
-.appr-acts{display:flex;gap:8px;}
+/* ── 승인 ── */
+.appr-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.appr-acts{display:flex;gap:8px;margin-top:11px;}
 
-/* Plan */
-.plan-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--b);}
-.plan-table{width:100%;border-collapse:collapse;min-width:480px;font-size:12px;}
-.plan-table th{background:var(--bg3);padding:8px;text-align:center;color:var(--tx2);border:1px solid var(--b);font-weight:500;}
-.plan-table td{border:1px solid var(--b);padding:6px;vertical-align:top;cursor:pointer;transition:background .15s;}
-.plan-table td:hover{background:var(--bg3);}
-.plan-min{color:var(--am2);font-weight:600;font-size:12px;}
+/* ── 계획표 ── */
+.plan-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--b);-webkit-overflow-scrolling:touch;}
+.plan-table{width:100%;border-collapse:collapse;min-width:460px;font-size:12px;}
+.plan-table th{background:var(--bg3);padding:9px 7px;text-align:center;color:var(--tx2);border:1px solid var(--b);font-weight:600;}
+.plan-table td{border:1px solid var(--b);padding:7px;vertical-align:top;cursor:pointer;}
+.plan-table td:active{background:var(--bg3);}
+.plan-min{color:var(--am2);font-weight:700;font-size:12px;}
 .plan-topic{color:var(--tx2);font-size:11px;margin-top:2px;line-height:1.4;}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:var(--r2);border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;transition:all .15s;white-space:nowrap;}
-.btn:active{transform:scale(.97);}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important;}
-.btn-am{background:var(--am);color:#000;}.btn-am:hover:not(:disabled){background:var(--am2);}
-.btn-gn{background:var(--gn);color:#fff;}.btn-gn:hover:not(:disabled){background:#2ea043;}
-.btn-rd{background:var(--rd);color:#fff;}.btn-rd:hover:not(:disabled){background:#f85149;}
-.btn-gh{background:transparent;color:var(--tx2);border:1px solid var(--b2);}.btn-gh:hover:not(:disabled){background:var(--bg3);color:var(--tx);}
-.btn-pu{background:rgba(139,87,229,.2);color:var(--pu2);border:1px solid rgba(139,87,229,.4);}.btn-pu:hover:not(:disabled){background:rgba(139,87,229,.3);}
-.btn-tl{background:rgba(56,189,248,.15);color:var(--tl2);border:1px solid rgba(56,189,248,.35);}.btn-tl:hover:not(:disabled){background:rgba(56,189,248,.25);}
+/* ── 버튼 ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:var(--r2);border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:all .15s;white-space:nowrap;min-height:44px;}
+.btn:active{transform:scale(.96);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;}
+.btn-am{background:var(--am);color:#000;}
+.btn-am:active:not(:disabled){background:var(--am2);}
+.btn-gn{background:var(--gn);color:#fff;}
+.btn-gn:active:not(:disabled){background:#2ea043;}
+.btn-rd{background:var(--rd);color:#fff;}
+.btn-rd:active:not(:disabled){background:#f85149;}
+.btn-gh{background:transparent;color:var(--tx2);border:1.5px solid var(--b2);}
+.btn-gh:active:not(:disabled){background:var(--bg3);color:var(--tx);}
+.btn-pu{background:rgba(139,87,229,.2);color:var(--pu2);border:1.5px solid rgba(139,87,229,.4);}
+.btn-tl{background:var(--tl-bg);color:var(--tl2);border:1.5px solid rgba(56,189,248,.35);}
 .btn-full{width:100%;}
 
-/* Forms */
-.fr{margin-bottom:13px;}
-.fr label{display:block;font-size:12px;color:var(--tx2);margin-bottom:5px;font-weight:500;}
-.fi{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r2);color:var(--tx);font-size:14px;padding:9px 12px;outline:none;font-family:inherit;transition:border-color .15s;}
-.fi:focus{border-color:var(--am);}
-.fi option{background:var(--bg3);}
-textarea.fi{resize:vertical;min-height:80px;}
+/* ── 폼 ── */
+.fr{margin-bottom:14px;}
+.fr label{display:block;font-size:13px;color:var(--tx2);margin-bottom:7px;font-weight:600;}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 
-/* Modal */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:20px;}
+/* ── 모달 ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center;padding:0;}
 .overlay.on{display:flex;}
-.modal{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:22px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:su .2s ease;}
-@keyframes su{from{transform:translateY(16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:var(--r) var(--r) 0 0;padding:24px 22px;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:su .25s ease;padding-bottom:calc(24px + var(--safe-bot));}
+@keyframes su{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.modal-hd h2{font-size:16px;}
-.mx{background:transparent;border:none;color:var(--tx2);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;}
-.mx:hover{background:var(--bg3);}
-.modal-btns{display:flex;gap:8px;margin-top:18px;}
+.modal-hd h2{font-size:17px;font-weight:700;}
+.mx{background:transparent;border:none;color:var(--tx2);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.modal-btns{display:flex;gap:9px;margin-top:18px;}
 
-/* Fullscreen img */
-#img-fs{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:200;align-items:center;justify-content:center;cursor:pointer;}
+/* ── 풀스크린 이미지 ── */
+#img-fs{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;align-items:center;justify-content:center;cursor:pointer;}
 #img-fs.on{display:flex;}
 #img-fs img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:var(--r2);}
 
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
+/* ── 기타 ── */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg3);border:1px solid var(--b2);color:var(--tx);padding:10px 22px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
+#toast{position:fixed;bottom:calc(28px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg3);border:1px solid var(--b2);color:var(--tx);padding:11px 24px;border-radius:22px;font-size:14px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.empty{text-align:center;padding:40px 20px;}.empty-i{font-size:34px;margin-bottom:10px;}.empty-m{color:var(--tx3);font-size:13px;line-height:1.8;}
-.tb-badge{display:inline-flex;align-items:center;justify-content:center;background:#da3633;color:#fff;font-size:9px;font-weight:700;width:14px;height:14px;border-radius:50%;margin-left:3px;vertical-align:middle;}
-::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px;}
-@media(max-width:500px){.tb{font-size:10px;padding:7px 2px;min-width:44px;}.fg2{grid-template-columns:1fr;}.fg3{grid-template-columns:1fr;}.stat-v{font-size:17px;}.role-grid{grid-template-columns:1fr 1fr;}}
+.empty{text-align:center;padding:44px 20px;}.empty-i{font-size:36px;margin-bottom:10px;}.empty-m{color:var(--tx3);font-size:13px;line-height:1.8;}
+.tb-badge{display:inline-flex;align-items:center;justify-content:center;background:#da3633;color:#fff;font-size:10px;font-weight:700;width:15px;height:15px;border-radius:50%;margin-left:3px;vertical-align:middle;}
+
+@media(max-width:420px){
+  .fg2{grid-template-columns:1fr;}
+  .fg3{grid-template-columns:1fr 1fr;}
+  .stat-v{font-size:18px;}
+  .tb{font-size:10px;padding:8px 2px;min-width:44px;}
+}
 </style>
 </head>
 <body>
 
-<!-- ══════════════ LOGIN ══════════════ -->
+<!-- ══ 설치 안내 화면 ══ -->
+<div id="sc-guide" class="screen sc-flex">
+  <div style="text-align:center">
+    <div style="font-size:50px;margin-bottom:10px">📲</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:6px">홈 화면에 설치하기</div>
+    <div style="font-size:14px;color:var(--tx2)">아이폰 앱처럼 사용하는 방법</div>
+  </div>
+  <div class="guide-box">
+    <div class="guide-step">
+      <div class="guide-num">1</div>
+      <div class="guide-txt">Safari 하단 가운데 <strong>공유 버튼</strong>을 탭하세요<small>□ 위에 화살표 있는 아이콘</small></div>
+    </div>
+    <div class="guide-step">
+      <div class="guide-num">2</div>
+      <div class="guide-txt">스크롤해서 <strong>"홈 화면에 추가"</strong>를 탭하세요<small>집 모양 아이콘 + 버튼</small></div>
+    </div>
+    <div class="guide-step">
+      <div class="guide-num">3</div>
+      <div class="guide-txt">오른쪽 위 <strong>"추가"</strong>를 탭하세요<small>홈 화면에 📚 아이콘이 생겨요</small></div>
+    </div>
+    <div class="guide-step">
+      <div class="guide-num">4</div>
+      <div class="guide-txt">홈 화면의 <strong>📚 아이콘</strong>으로 실행하세요<small>전체화면 앱 모드로 실행됩니다</small></div>
+    </div>
+  </div>
+  <div style="width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px">
+    <button class="btn btn-am btn-full" onclick="skipGuide()" style="font-size:16px;padding:15px">
+      ✅ 이미 설치했어요 → 시작하기
+    </button>
+    <button class="btn btn-gh btn-full" onclick="skipGuide()">
+      나중에 설치할게요
+    </button>
+  </div>
+  <div style="font-size:12px;color:var(--tx3);text-align:center;max-width:320px;line-height:1.6">
+    💡 이 파일이 <strong style="color:var(--tx2)">Safari</strong>에서 열려 있어야 합니다<br>파일 앱 → HTML 파일 탭 → Safari로 열기
+  </div>
+</div>
+
+<!-- ══ 로그인 ══ -->
 <div id="sc-login" class="screen">
   <div class="logo">📚</div>
-  <div>
-    <div class="login-title">노씨 가족 스터디 트래커</div>
-    <div class="login-sub">누구로 접속할까요?</div>
+  <div style="text-align:center">
+    <div style="font-size:22px;font-weight:700">노씨 가족 스터디 트래커</div>
+    <div style="font-size:14px;color:var(--tx2);margin-top:6px">누구로 접속할까요?</div>
   </div>
   <div class="role-grid">
     <div class="role-card c1" onclick="loginChild('c1')">
-      <div class="rc-icon">🎒</div>
-      <div class="rc-name">노유현</div>
-      <div class="rc-sub">첫째</div>
-      <div class="chip chip1">1학년</div>
+      <div class="rc-icon">🎒</div><div class="rc-name">노유현</div>
+      <div class="rc-sub">첫째</div><div class="chip ch1" id="chip-c1">1학년</div>
     </div>
     <div class="role-card c2" onclick="loginChild('c2')">
-      <div class="rc-icon">🎒</div>
-      <div class="rc-name">노현성</div>
-      <div class="rc-sub">둘째</div>
-      <div class="chip chip2">2학년</div>
+      <div class="rc-icon">🎒</div><div class="rc-name">노현성</div>
+      <div class="rc-sub">둘째</div><div class="chip ch2" id="chip-c2">2학년</div>
     </div>
     <div class="role-card c3" onclick="loginChild('c3')">
-      <div class="rc-icon">🎒</div>
-      <div class="rc-name">노성윤</div>
-      <div class="rc-sub">셋째</div>
-      <div class="chip chip3">3학년</div>
+      <div class="rc-icon">🎒</div><div class="rc-name">노성윤</div>
+      <div class="rc-sub">셋째</div><div class="chip ch3" id="chip-c3">3학년</div>
     </div>
     <div class="role-card par" onclick="loginParent()">
-      <div class="rc-icon">👨‍👩‍👦</div>
-      <div class="rc-name">부모님</div>
-      <div class="rc-sub">관리 · 승인</div>
+      <div class="rc-icon">👨‍👩‍👦</div><div class="rc-name">부모님</div><div class="rc-sub">관리 · 승인</div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ PIN ══════════════ -->
+<!-- ══ PIN ══ -->
 <div id="sc-pin" class="screen">
   <div class="pin-card">
     <div style="font-size:36px;margin-bottom:12px">🔐</div>
-    <h2 style="margin-bottom:6px">부모님 인증</h2>
-    <p style="color:var(--tx2);font-size:12px;margin-bottom:20px">초기 PIN: 1234</p>
+    <h2 style="margin-bottom:6px;font-size:18px">부모님 인증</h2>
+    <p style="color:var(--tx2);font-size:13px;margin-bottom:20px">초기 PIN: 1234</p>
     <input type="password" id="pin-inp" class="pin-inp" maxlength="6" placeholder="••••" inputmode="numeric" onkeyup="if(event.key==='Enter')vPin()">
     <div class="pin-err" id="pin-err"></div>
-    <button class="btn btn-am btn-full" onclick="vPin()">확인</button>
-    <button class="btn btn-gh btn-full" style="margin-top:8px" onclick="showSc('login')">← 돌아가기</button>
+    <button class="btn btn-am btn-full" onclick="vPin()" style="margin-bottom:10px">확인</button>
+    <button class="btn btn-gh btn-full" onclick="showSc('login')">← 돌아가기</button>
   </div>
 </div>
 
-<!-- ══════════════ CHILD SCREEN ══════════════ -->
+<!-- ══ 자녀 화면 ══ -->
 <div id="sc-child" class="screen">
   <div class="frame">
     <div class="app-header">
       <div style="display:flex;align-items:center;gap:10px">
-        <span id="child-header-dot" style="font-size:18px">●</span>
-        <span class="app-title" id="child-header-name">스터디 트래커</span>
+        <span id="child-dot" style="font-size:18px">●</span>
+        <span class="app-title" id="child-hdr">스터디 트래커</span>
       </div>
       <div style="display:flex;align-items:center;gap:7px">
-        <div class="pt-badge acc-par">⭐<span id="child-pts">0</span>P · <span id="child-won">₩0</span></div>
+        <div class="pt-badge" id="child-badge-wrap" style="background:var(--am-bg);color:var(--am2);border-color:rgba(210,153,34,.3)">
+          ⭐ <span id="child-pts">0</span>P · <span id="child-won">₩0</span>
+        </div>
         <button class="icon-btn" onclick="showSc('login')">↩</button>
       </div>
     </div>
@@ -325,7 +369,6 @@ textarea.fi{resize:vertical;min-height:80px;}
       <button class="tb" onclick="stab(this,'plan')">📅 학습계획</button>
       <button class="tb" onclick="stab(this,'points')">⭐ 포인트</button>
     </div>
-    <!-- 할 일 -->
     <div class="tab-pane active" id="s-today">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
         <div class="sec-lbl" style="margin:0">오늘의 과제</div>
@@ -333,24 +376,21 @@ textarea.fi{resize:vertical;min-height:80px;}
       </div>
       <div id="task-list"></div>
     </div>
-    <!-- 공부인증 -->
     <div class="tab-pane" id="s-study">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
         <div class="sec-lbl" style="margin:0">공부 인증</div>
-        <button class="btn btn-am" style="font-size:12px;padding:6px 12px" onclick="openStudyModal()">+ 인증 추가</button>
+        <button class="btn btn-am" style="font-size:13px;padding:8px 14px;min-height:36px" onclick="openStudyModal()">+ 인증 추가</button>
       </div>
       <div id="study-list"></div>
     </div>
-    <!-- 학습계획 -->
     <div class="tab-pane" id="s-plan">
       <div class="sec-lbl">주간 학습 계획표</div>
-      <p style="color:var(--tx2);font-size:12px;margin-bottom:12px">셀을 클릭하면 계획을 입력할 수 있어요</p>
+      <p style="color:var(--tx2);font-size:13px;margin-bottom:13px">셀을 탭하면 계획을 입력해요</p>
       <div class="plan-wrap"><table class="plan-table">
-        <thead><tr><th style="min-width:52px">과목</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th><th>일</th></tr></thead>
+        <thead><tr><th style="min-width:50px">과목</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th><th>일</th></tr></thead>
         <tbody id="plan-tbody"></tbody>
       </table></div>
     </div>
-    <!-- 포인트 -->
     <div class="tab-pane" id="s-points">
       <div class="stat-grid">
         <div class="stat-c"><div class="stat-v" id="sp-pts">0</div><div class="stat-s" id="sp-won">₩0</div><div class="stat-l">보유 포인트</div></div>
@@ -365,7 +405,7 @@ textarea.fi{resize:vertical;min-height:80px;}
   </div>
 </div>
 
-<!-- ══════════════ PARENT SCREEN ══════════════ -->
+<!-- ══ 부모 화면 ══ -->
 <div id="sc-par" class="screen">
   <div class="frame">
     <div class="app-header">
@@ -375,184 +415,175 @@ textarea.fi{resize:vertical;min-height:80px;}
       </div>
       <button class="icon-btn" onclick="showSc('login')">↩</button>
     </div>
-
-    <!-- Child selector -->
     <div class="child-sel">
-      <button class="csel-btn c1 active" onclick="selParChild('c1',this)">● 노유현 <span id="cs-pts-c1" style="font-size:10px"></span></button>
-      <button class="csel-btn c2" onclick="selParChild('c2',this)">● 노현성 <span id="cs-pts-c2" style="font-size:10px"></span></button>
-      <button class="csel-btn c3" onclick="selParChild('c3',this)">● 노성윤 <span id="cs-pts-c3" style="font-size:10px"></span></button>
+      <button class="csel-btn c1 active" onclick="selPC('c1',this)">🟠 유현<br><span id="cs1" style="font-size:10px"></span></button>
+      <button class="csel-btn c2" onclick="selPC('c2',this)">🟢 현성<br><span id="cs2" style="font-size:10px"></span></button>
+      <button class="csel-btn c3" onclick="selPC('c3',this)">🟣 성윤<br><span id="cs3" style="font-size:10px"></span></button>
     </div>
-
     <div class="wk-bar" id="par-wk"></div>
-
     <div class="tabs">
       <button class="tb active" onclick="ptab(this,'approve')">🔔 승인<span class="tb-badge" id="appr-badge" style="display:none">0</span></button>
-      <button class="tb" onclick="ptab(this,'study')">📖 공부확인<span class="tb-badge" id="study-badge" style="display:none">0</span></button>
+      <button class="tb" onclick="ptab(this,'study')">📖 공부<span class="tb-badge" id="study-badge" style="display:none">0</span></button>
       <button class="tb" onclick="ptab(this,'tasks')">📝 과제</button>
       <button class="tb" onclick="ptab(this,'rewards')">🎁 보상</button>
-      <button class="tb" onclick="ptab(this,'payout')">💰 주간정산</button>
+      <button class="tb" onclick="ptab(this,'payout')">💰 정산</button>
       <button class="tb" onclick="ptab(this,'settings')">⚙️ 설정</button>
     </div>
-
     <div class="tab-pane active" id="p-approve"><div class="sec-lbl">과제 · 보상 승인 대기</div><div id="appr-list"></div></div>
-    <div class="tab-pane" id="p-study"><div class="sec-lbl">공부 인증 검토</div><div id="par-study-list"></div></div>
+    <div class="tab-pane" id="p-study"><div class="sec-lbl">공부 인증 검토<span style="font-size:11px;color:var(--tx3);font-weight:400;margin-left:6px">탭해서 확인</span></div><div id="par-study-list"></div></div>
     <div class="tab-pane" id="p-tasks">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="sec-lbl" style="margin:0">과제 목록</div>
-        <button class="btn btn-am" style="font-size:12px;padding:7px 13px" onclick="openTaskModal(null)">+ 추가</button>
+        <button class="btn btn-am" style="font-size:13px;padding:8px 14px;min-height:36px" onclick="openTaskModal(null)">+ 추가</button>
       </div>
       <div id="par-task-list"></div>
     </div>
     <div class="tab-pane" id="p-rewards">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="sec-lbl" style="margin:0">보상 목록 (공유)</div>
-        <button class="btn btn-am" style="font-size:12px;padding:7px 13px" onclick="openRewardModal()">+ 추가</button>
+        <button class="btn btn-am" style="font-size:13px;padding:8px 14px;min-height:36px" onclick="openRwModal()">+ 추가</button>
       </div>
       <div id="par-rw-list"></div>
     </div>
     <div class="tab-pane" id="p-payout"><div id="payout-content"></div></div>
     <div class="tab-pane" id="p-settings">
-      <div class="card">
-        <h3 style="margin-bottom:16px;font-size:15px">설정</h3>
-        <div style="margin-bottom:16px;background:var(--bg2);border-radius:var(--r);padding:12px">
-          <div class="sec-lbl" style="margin-bottom:10px">자녀 이름 / 학년</div>
-          <div class="fg3">
-            <div class="fr"><label style="color:var(--c1)">첫째 이름</label><input id="set-n1" class="fi" value="노유현"></div>
-            <div class="fr"><label style="color:var(--c2)">둘째 이름</label><input id="set-n2" class="fi" value="노현성"></div>
-            <div class="fr"><label style="color:var(--c3)">셋째 이름</label><input id="set-n3" class="fi" value="노성윤"></div>
-          </div>
-          <div class="fg3">
-            <div class="fr"><label>첫째 학년</label><input id="set-g1" class="fi" placeholder="예: 1학년"></div>
-            <div class="fr"><label>둘째 학년</label><input id="set-g2" class="fi" placeholder="예: 2학년"></div>
-            <div class="fr"><label>셋째 학년</label><input id="set-g3" class="fi" placeholder="예: 3학년"></div>
-          </div>
+
+      <!-- 백업/복원 -->
+      <div class="card" style="border-color:rgba(56,189,248,.35);margin-bottom:12px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:6px">☁️ 데이터 백업 · 복원</div>
+        <p style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:14px">
+          iOS Safari는 <b style="color:#ff7b72">7일 이상 미사용 시 데이터를 자동 삭제</b>합니다.<br>
+          정기적으로 백업 파일을 저장해 두세요.
+        </p>
+        <button class="btn btn-tl btn-full" onclick="exportData()" style="font-size:15px;padding:14px;margin-bottom:10px">
+          📤 백업 파일 저장하기
+        </button>
+        <div style="font-size:12px;color:var(--tx3);text-align:center;margin-bottom:14px">
+          저장된 .json 파일을 아래에서 불러오면 복원됩니다
         </div>
-        <div class="fg2">
-          <div class="fr">
-            <label>주간 한도 (원) — 1인당</label>
-            <input type="number" id="set-limit" class="fi" value="20000" min="1000" step="1000">
-          </div>
-          <div class="fr">
-            <label>기본 단가 (P/분)</label>
-            <input type="number" id="set-ppm" class="fi" value="10" min="1" max="100" title="공부 1분당 기본 포인트">
-          </div>
-        </div>
-        <div class="fr"><label>PIN 변경 (숫자 4~6자리)</label><input type="password" id="set-pin" class="fi" maxlength="6" inputmode="numeric"></div>
-        <button class="btn btn-am btn-full" onclick="saveSettings()">저장</button>
+        <label style="display:block;background:var(--bg2);border:1.5px dashed var(--b2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;font-size:14px;color:var(--tx2)">
+          📥 백업 파일 불러와서 복원하기
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+        </label>
       </div>
-      <div class="card" style="border-color:rgba(218,54,51,.3);margin-top:12px">
-        <h3 style="margin-bottom:6px;font-size:14px;color:#ff7b72">⚠️ 데이터 초기화</h3>
-        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">모든 자녀의 과제, 포인트, 공부기록이 삭제됩니다</p>
+
+      <!-- 일반 설정 -->
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:16px">자녀 정보</div>
+        <div class="fg3">
+          <div class="fr"><label style="color:var(--c1)">첫째 이름</label><input id="sn1" value="노유현"></div>
+          <div class="fr"><label style="color:var(--c2)">둘째 이름</label><input id="sn2" value="노현성"></div>
+          <div class="fr"><label style="color:var(--c3)">셋째 이름</label><input id="sn3" value="노성윤"></div>
+        </div>
+        <div class="fg3">
+          <div class="fr"><label>첫째 학년</label><input id="sg1" placeholder="1학년"></div>
+          <div class="fr"><label>둘째 학년</label><input id="sg2" placeholder="2학년"></div>
+          <div class="fr"><label>셋째 학년</label><input id="sg3" placeholder="3학년"></div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--b);margin:16px 0">
+        <div style="font-weight:700;font-size:15px;margin-bottom:16px">포인트 설정</div>
+        <div class="fg2">
+          <div class="fr"><label>주간 한도 (원/인)</label><input type="number" id="s-limit" value="20000" min="1000" step="1000"></div>
+          <div class="fr"><label>기본 단가 (P/분)</label><input type="number" id="s-ppm" value="10" min="1" max="100"></div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--b);margin:16px 0">
+        <div class="fr"><label>PIN 변경 (숫자 4~6자리)</label><input type="password" id="s-pin" maxlength="6" inputmode="numeric" placeholder="새 PIN"></div>
+        <button class="btn btn-am btn-full" onclick="saveSettings()" style="font-size:15px;padding:14px">저장</button>
+      </div>
+      <div class="card" style="border-color:rgba(218,54,51,.35);margin-top:12px">
+        <div style="font-weight:700;font-size:14px;color:#ff7b72;margin-bottom:8px">⚠️ 데이터 초기화</div>
+        <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">모든 자녀의 데이터가 삭제됩니다</p>
         <button class="btn btn-rd btn-full" onclick="resetAll()">전체 초기화</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ MODALS ══════════════ -->
-
-<!-- Task Modal -->
+<!-- ══ 모달들 ══ -->
 <div class="overlay" id="task-modal">
   <div class="modal">
     <div class="modal-hd"><h2 id="task-modal-ttl">과제 추가</h2><button class="mx" onclick="closeO('task-modal')">✕</button></div>
     <input type="hidden" id="edit-tid">
-    <div class="fr"><label>과제명 *</label><input type="text" id="ti-title" class="fi" placeholder="예: 수학 56~60p 풀기"></div>
+    <div class="fr"><label>과제명 *</label><input id="ti-title" placeholder="예: 수학 56~60p 풀기"></div>
     <div class="fg2">
       <div class="fr"><label>과목</label>
-        <select id="ti-subj" class="fi"><option>국어</option><option>수학</option><option>영어</option><option>과학</option><option>사회</option><option>역사</option><option>도덕</option><option>체육</option><option>기술</option><option>기타</option></select>
+        <select id="ti-subj"><option>국어</option><option>수학</option><option>영어</option><option>과학</option><option>사회</option><option>역사</option><option>도덕</option><option>체육</option><option>기술</option><option>기타</option></select>
       </div>
-      <div class="fr"><label>포인트 (= 원) *</label><input type="number" id="ti-pts" class="fi" placeholder="1000" min="1"></div>
+      <div class="fr"><label>포인트 (= 원)</label><input type="number" id="ti-pts" placeholder="1000" min="1"></div>
     </div>
-    <div class="fr"><label>마감일</label><input type="date" id="ti-due" class="fi"></div>
+    <div class="fr"><label>마감일</label><input type="date" id="ti-due"></div>
     <div class="modal-btns"><button class="btn btn-gh" style="flex:1" onclick="closeO('task-modal')">취소</button><button class="btn btn-am" style="flex:1" onclick="saveTask()">저장</button></div>
   </div>
 </div>
 
-<!-- Reward Modal -->
 <div class="overlay" id="rw-modal">
   <div class="modal">
     <div class="modal-hd"><h2>보상 추가</h2><button class="mx" onclick="closeO('rw-modal')">✕</button></div>
-    <div class="fr"><label>보상 이름 *</label><input type="text" id="ri-name" class="fi" placeholder="예: 치킨 🍗"></div>
-    <div class="fr"><label>필요 포인트 (= 원) *</label><input type="number" id="ri-cost" class="fi" placeholder="20000" min="1"></div>
-    <div class="fr"><label>설명 (선택)</label><input type="text" id="ri-desc" class="fi" placeholder="예: 주말에만 사용 가능"></div>
+    <div class="fr"><label>보상 이름 *</label><input id="ri-name" placeholder="예: 치킨 🍗"></div>
+    <div class="fr"><label>필요 포인트 (= 원) *</label><input type="number" id="ri-cost" placeholder="20000" min="1"></div>
+    <div class="fr"><label>설명 (선택)</label><input id="ri-desc" placeholder="예: 주말에만 사용 가능"></div>
     <div class="modal-btns"><button class="btn btn-gh" style="flex:1" onclick="closeO('rw-modal')">취소</button><button class="btn btn-am" style="flex:1" onclick="saveReward()">저장</button></div>
   </div>
 </div>
 
-<!-- Plan Modal -->
 <div class="overlay" id="plan-modal">
   <div class="modal">
-    <div class="modal-hd"><h2 id="plan-modal-ttl">학습 계획</h2><button class="mx" onclick="closeO('plan-modal')">✕</button></div>
+    <div class="modal-hd"><h2 id="plan-ttl">학습 계획</h2><button class="mx" onclick="closeO('plan-modal')">✕</button></div>
     <input type="hidden" id="pi-subj"><input type="hidden" id="pi-day">
-    <div class="fr"><label>학습 시간 (분)</label><input type="number" id="pi-min" class="fi" placeholder="60" min="0"></div>
-    <div class="fr"><label>학습 내용</label><input type="text" id="pi-topic" class="fi" placeholder="예: 이차방정식 단원 정리"></div>
+    <div class="fr"><label>학습 시간 (분)</label><input type="number" id="pi-min" placeholder="60" min="0"></div>
+    <div class="fr"><label>학습 내용</label><input id="pi-topic" placeholder="예: 이차방정식 단원 정리"></div>
     <div class="modal-btns"><button class="btn btn-gh" style="flex:1" onclick="closeO('plan-modal')">취소</button><button class="btn btn-am" style="flex:1" onclick="savePlan()">저장</button></div>
   </div>
 </div>
 
-<!-- Study Log Modal -->
 <div class="overlay" id="study-modal">
-  <div class="modal" style="max-width:500px">
+  <div class="modal">
     <div class="modal-hd"><h2>📖 공부 인증</h2><button class="mx" onclick="closeO('study-modal')">✕</button></div>
     <div class="fg2">
       <div class="fr"><label>과목 *</label>
-        <select id="sl-subj" class="fi"><option>국어</option><option>수학</option><option>영어</option><option>과학</option><option>사회</option><option>역사</option><option>도덕</option><option>체육</option><option>기술</option><option>기타</option></select>
+        <select id="sl-subj"><option>국어</option><option>수학</option><option>영어</option><option>과학</option><option>사회</option><option>역사</option><option>도덕</option><option>체육</option><option>기술</option><option>기타</option></select>
       </div>
-      <div class="fr"><label>공부 시간 (분) *</label><input type="number" id="sl-dur" class="fi" placeholder="60" min="1" max="999"></div>
+      <div class="fr"><label>공부 시간 (분) *</label><input type="number" id="sl-dur" placeholder="60" min="1" max="999"></div>
     </div>
-    <div class="fr"><label>학습량 (구체적으로) *</label><input type="text" id="sl-vol" class="fi" placeholder='예: "수학문제 35개 풀이", "교과서 p.45~60"'></div>
-    <div class="fr"><label>공부 내용 요약 *</label>
-      <textarea id="sl-content" class="fi" placeholder="오늘 공부한 내용을 써 주세요&#10;예: 이차방정식 판별식 개념 정리 및 유형별 문제 풀이"></textarea>
-    </div>
+    <div class="fr"><label>학습량 (구체적으로) *</label><input id="sl-vol" placeholder='예: "수학문제 35개", "교과서 p.45~60"'></div>
+    <div class="fr"><label>공부 내용 요약 *</label><textarea id="sl-content" placeholder="오늘 공부한 내용을 써 주세요&#10;예: 이차방정식 판별식 개념 정리 및 문제 풀이"></textarea></div>
     <div class="fr">
-      <label>📷 공부 자료 사진 (선택) — 노트, 문제집, 화면 캡처 등</label>
+      <label>📷 공부 자료 사진 (선택)</label>
       <div class="img-zone" id="img-zone" onclick="document.getElementById('sl-img').click()">
         <input type="file" id="sl-img" accept="image/*" style="display:none" onchange="handleImg(this)">
-        <div class="img-ph" id="img-ph"><div style="font-size:28px;margin-bottom:6px">📸</div><div>클릭하여 이미지 업로드</div><div style="font-size:11px;color:var(--tx3);margin-top:4px">최대 8MB</div></div>
+        <div class="img-ph" id="img-ph"><div style="font-size:28px;margin-bottom:6px">📸</div><div>탭해서 사진 업로드</div><div style="font-size:11px;color:var(--tx3);margin-top:4px">노트, 문제집 등</div></div>
         <img id="img-prev" style="display:none">
         <button class="img-clr" id="img-clr" style="display:none" onclick="clearImg(event)">✕</button>
       </div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:13px;margin-bottom:14px">
+    <div style="background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:13px;font-weight:600">🤖 AI 퀴즈로 학습 이해도 확인</span>
-        <button class="btn btn-pu" style="font-size:11px;padding:5px 11px" id="quiz-btn" onclick="genQuiz()">퀴즈 받기</button>
+        <span style="font-size:14px;font-weight:700">🤖 AI 퀴즈로 학습 확인</span>
+        <button class="btn btn-pu" style="font-size:12px;padding:7px 13px;min-height:36px" id="quiz-btn" onclick="genQuiz()">퀴즈 받기</button>
       </div>
-      <p style="font-size:11px;color:var(--tx3)">내용 입력 후 AI 퀴즈를 풀면 오답률이 포인트 배율에 반영돼요</p>
+      <p style="font-size:12px;color:var(--tx3)">내용 입력 후 AI 퀴즈를 풀면 오답률이 포인트 배율에 반영돼요</p>
       <div id="quiz-area" style="margin-top:10px"></div>
     </div>
     <div class="modal-btns"><button class="btn btn-gh" style="flex:1" onclick="closeO('study-modal')">취소</button><button class="btn btn-am" style="flex:1" onclick="submitLog()">제출하기</button></div>
   </div>
 </div>
 
-<!-- Parent Study Review Modal -->
 <div class="overlay" id="psr-modal">
-  <div class="modal" style="max-width:520px">
+  <div class="modal">
     <div class="modal-hd"><h2>📖 공부 인증 검토</h2><button class="mx" onclick="closeO('psr-modal')">✕</button></div>
     <div id="psr-content"></div>
-
-    <!-- Point formula display -->
     <div id="pts-formula-box"></div>
-
-    <div class="fg2" style="margin-top:12px">
-      <div class="fr">
-        <label>학습량 보너스 포인트</label>
-        <input type="number" id="vol-bonus" class="fi" placeholder="0" min="0" max="99999" oninput="recalcPts()">
-        <div style="font-size:11px;color:var(--tx3);margin-top:4px">문제수/페이지 수 참고해서 입력</div>
-      </div>
-      <div class="fr">
-        <label>최종 지급 포인트 (수동 조정 가능)</label>
-        <input type="number" id="final-pts" class="fi" placeholder="0" min="0">
-      </div>
+    <div class="fg2" style="margin-top:13px">
+      <div class="fr"><label>학습량 보너스 (P)</label><input type="number" id="vol-bonus" placeholder="0" min="0" oninput="recalcPts()"></div>
+      <div class="fr"><label>최종 지급 포인트</label><input type="number" id="final-pts" placeholder="0" min="0"></div>
     </div>
     <div class="modal-btns">
-      <button class="btn btn-rd" style="flex:1" id="psr-reject-btn" onclick="doStudyAppr(false)">✕ 반려</button>
-      <button class="btn btn-gn" style="flex:1" id="psr-approve-btn" onclick="doStudyAppr(true)">✓ 승인 · 포인트 지급</button>
+      <button class="btn btn-rd" style="flex:1" id="psr-rej" onclick="doStudyAppr(false)">✕ 반려</button>
+      <button class="btn btn-gn" style="flex:1" id="psr-ok" onclick="doStudyAppr(true)">✓ 승인 · 지급</button>
     </div>
   </div>
 </div>
 
-<!-- Payout Confirm Modal -->
 <div class="overlay" id="payout-modal">
   <div class="modal">
     <div class="modal-hd"><h2>💰 주간 정산 확인</h2><button class="mx" onclick="closeO('payout-modal')">✕</button></div>
@@ -565,27 +596,20 @@ textarea.fi{resize:vertical;min-height:80px;}
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════
-// DATA
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 데이터
+// ═══════════════════════════════════
 const SUBJS=['국어','수학','영어','과학','사회','역사','도덕','체육','기술','기타'];
-const DAYS=['월','화','수','목','금','토','일'];
-const DKEYS=['mon','tue','wed','thu','fri','sat','sun'];
-const CHILD_IDS=['c1','c2','c3'];
-const DEF_LIMIT=20000, DEF_PPM=10;
+const DLBL=['월','화','수','목','금','토','일'],DKEYS=['mon','tue','wed','thu','fri','sat','sun'];
+const CIDS=['c1','c2','c3'],DEF_LIMIT=20000,DEF_PPM=10;
+const SAVE_KEY='no_study_tracker'; // ← 영구 고정 키. 절대 바꾸지 않음
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-
-function mkChild(name,grade){
-  return{name,grade,points:0,tasks:[],approvals:[],studyLogs:[],history:[],plan:{}};
-}
-
+function mkChild(name,grade){return{name,grade,points:0,tasks:[],approvals:[],studyLogs:[],history:[],plan:{}};}
 function defData(){return{
   pin:'1234',weeklyLimit:DEF_LIMIT,pointPerMin:DEF_PPM,
   children:{
-    c1:mkChild('노유현','1학년'),
-    c2:mkChild('노현성','2학년'),
-    c3:mkChild('노성윤','3학년'),
+    c1:mkChild('노유현','1학년'),c2:mkChild('노현성','2학년'),c3:mkChild('노성윤','3학년'),
   },
   rewards:[
     {id:uid(),name:'치킨 한 마리 🍗',cost:20000,desc:''},
@@ -596,146 +620,144 @@ function defData(){return{
   payouts:[]
 };}
 
-let D=JSON.parse(localStorage.getItem('lms5')||'null')||defData();
-function save(){localStorage.setItem('lms5',JSON.stringify(D));}
+// 이전 버전 키들에서 데이터 마이그레이션
+function loadData(){
+  // 현재 키 먼저 확인
+  try{
+    const cur=localStorage.getItem(SAVE_KEY);
+    if(cur){const p=JSON.parse(cur);if(p&&p.children)return p;}
+  }catch(e){}
+  // 이전 키들 순서대로 확인 (가장 최신 것부터)
+  const oldKeys=['lms6','lms5','lms3','lms2','lms'];
+  for(const key of oldKeys){
+    try{
+      const old=localStorage.getItem(key);
+      if(old){
+        const p=JSON.parse(old);
+        if(p&&p.children){
+          // 새 키로 옮기고 구 키 삭제
+          localStorage.setItem(SAVE_KEY,old);
+          try{localStorage.removeItem(key);}catch(e){}
+          return p;
+        }
+      }
+    }catch(e){}
+  }
+  return defData();
+}
 
-// Current state
-let curChild=null;     // 'c1'|'c2'|'c3'
-let parChild='c1';     // selected child in parent view
-let curLogId=null;     // study log being reviewed
-let curQuiz=null;      // current quiz questions
-let userAnswers=[];
-let pendingImg=null;
+let D;
+try{D=loadData();}catch(e){D=defData();}
+function save(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(D));}
+  catch(e){toast('⚠️ 저장 공간이 부족해요');}
+}
 
-// Child accent colors
-const CHILD_COLORS={c1:'var(--c1)',c2:'var(--c2)',c3:'var(--c3)'};
-const CHILD_DOTS={c1:'🟠',c2:'🟢',c3:'🟣'};
+let curChild=null,parChild='c1',curLogId=null,curQuiz=null,userAns=[],pendingImg=null;
 
-// ══════════════════════════════════
-// UTILS
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 유틸
+// ═══════════════════════════════════
 function W(n){return'₩'+Math.round(n).toLocaleString();}
 function ch(){return D.children[curChild];}
 function pch(){return D.children[parChild];}
 
-function getWeekBounds(){
-  // Week: Sun 00:00 ~ Sat 23:59
+function weekBounds(){
   const n=new Date(),d=n.getDay();
   const sun=new Date(n);sun.setDate(n.getDate()-d);sun.setHours(0,0,0,0);
   const sat=new Date(sun);sat.setDate(sun.getDate()+6);sat.setHours(23,59,59,999);
   return{sun,sat};
 }
-function weeklyEarned(childId){
-  const{sun,sat}=getWeekBounds();
-  return(D.children[childId].history||[])
-    .filter(h=>h.pts>0&&!h.paid&&h.ts&&new Date(h.ts)>=sun&&new Date(h.ts)<=sat)
-    .reduce((s,h)=>s+h.pts,0);
+function wkEarned(cid){
+  const{sun,sat}=weekBounds();
+  return(D.children[cid].history||[]).filter(h=>h.pts>0&&!h.paid&&h.ts&&new Date(h.ts)>=sun&&new Date(h.ts)<=sat).reduce((s,h)=>s+h.pts,0);
 }
-function unpaidEarned(childId){
-  return(D.children[childId].history||[]).filter(h=>h.pts>0&&!h.paid).reduce((s,h)=>s+h.pts,0);
-}
+function unpaid(cid){return(D.children[cid].history||[]).filter(h=>h.pts>0&&!h.paid).reduce((s,h)=>s+h.pts,0);}
 
-function renderWkBar(elId,childId){
-  const earned=weeklyEarned(childId),limit=D.weeklyLimit||DEF_LIMIT;
-  const pct=Math.min(100,Math.round(earned/limit*100)),over=earned>=limit;
-  const{sun,sat}=getWeekBounds();
+function renderWk(elId,cid){
+  const e=wkEarned(cid),lim=D.weeklyLimit||DEF_LIMIT;
+  const pct=Math.min(100,Math.round(e/lim*100)),over=e>=lim;
+  const{sun,sat}=weekBounds();
   const fmt=d=>d.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'});
   document.getElementById(elId).innerHTML=`
     <div class="wk-hd">
-      <span style="font-size:12px;color:var(--tx2);font-weight:600">이번 주 획득 현황 <span style="font-weight:400;color:var(--tx3)">(${fmt(sun)} ~ ${fmt(sat)})</span></span>
-      <span style="color:var(--am2);font-weight:700;font-size:12px">${earned.toLocaleString()}P / ${limit.toLocaleString()}P</span>
+      <span style="font-size:12px;color:var(--tx2);font-weight:600">이번 주 <span style="font-weight:400;color:var(--tx3)">(${fmt(sun)}일~${fmt(sat)}토)</span></span>
+      <span style="color:var(--am2);font-weight:700;font-size:13px">${e.toLocaleString()}P / ${lim.toLocaleString()}P</span>
     </div>
-    <div class="wk-track"><div class="wk-fill ${over?'':''}}" style="width:${pct}%;background:${over?'var(--rd)':'var(--am)'}"></div></div>
-    <div class="wk-foot"><span>${pct}% 달성 · ${W(earned)}</span><span>${over?'<span style="color:#ff7b72;font-weight:600">⚠ 한도 도달</span>':'남은 한도 '+W(Math.max(0,limit-earned))}</span></div>`;
+    <div class="wk-track"><div class="wk-fill" style="width:${pct}%;background:${over?'var(--rd)':'var(--am)'}"></div></div>
+    <div class="wk-foot"><span>${pct}% · ${W(e)}</span><span>${over?'<b style="color:#ff7b72">⚠ 한도 도달</b>':'남은 한도 '+W(Math.max(0,lim-e))}</span></div>`;
 }
 
 let toastT;
-function toast(m){clearTimeout(toastT);const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');toastT=setTimeout(()=>t.classList.remove('show'),2500);}
-function empty(ic,msg,sub){return`<div class="empty"><div class="empty-i">${ic}</div><div class="empty-m">${msg}${sub?'<br>'+sub:''}</div></div>`;}
+function toast(m){clearTimeout(toastT);const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+function empty(ic,m,s){return`<div class="empty"><div class="empty-i">${ic}</div><div class="empty-m">${m}${s?'<br>'+s:''}</div></div>`;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
 
-// ══════════════════════════════════
-// SCREENS
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 화면 전환
+// ═══════════════════════════════════
 function showSc(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('sc-'+n).classList.add('active');}
+
+function skipGuide(){localStorage.setItem('guide_done','1');showSc('login');}
 
 function loginChild(cid){
   curChild=cid;
   document.getElementById('today-date').textContent=new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
-  const c=ch();
-  const dot=CHILD_DOTS[cid];
-  document.getElementById('child-header-dot').textContent=dot;
-  document.getElementById('child-header-name').textContent=c.name+'의 스터디 트래커';
-  // reset tabs
+  const c=ch(),dots={c1:'🟠',c2:'🟢',c3:'🟣'};
+  document.getElementById('child-dot').textContent=dots[cid];
+  document.getElementById('child-hdr').textContent=c.name+'의 트래커';
   document.querySelectorAll('#sc-child .tb').forEach((b,i)=>{b.classList.toggle('active',i===0);});
   document.querySelectorAll('#sc-child .tab-pane').forEach((p,i)=>{p.classList.toggle('active',i===0);});
-  updateChildHeader();renderWkBar('child-wk',cid);renderTasks();
+  updChildHdr();renderWk('child-wk',cid);renderTasks();
   showSc('child');
 }
+function loginParent(){document.getElementById('pin-inp').value='';document.getElementById('pin-err').textContent='';showSc('pin');}
+function vPin(){if(document.getElementById('pin-inp').value===D.pin){renderPar();showSc('par');}else document.getElementById('pin-err').textContent='❌ PIN이 맞지 않습니다';}
 
-function loginParent(){
-  document.getElementById('pin-inp').value='';
-  document.getElementById('pin-err').textContent='';
-  showSc('pin');
-}
-function vPin(){
-  if(document.getElementById('pin-inp').value===D.pin){renderPar();showSc('par');}
-  else document.getElementById('pin-err').textContent='❌ PIN이 맞지 않습니다';
-}
-
-// ══════════════════════════════════
-// CHILD TAB SWITCH
-// ══════════════════════════════════
 function stab(btn,tab){
   document.querySelectorAll('#sc-child .tb').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#sc-child .tab-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('s-'+tab).classList.add('active');
-  if(tab==='today') renderTasks();
-  if(tab==='study') renderStudyList();
-  if(tab==='plan')  renderPlan();
-  if(tab==='points') renderPoints();
+  btn.classList.add('active');document.getElementById('s-'+tab).classList.add('active');
+  ({today:renderTasks,study:renderStudyList,plan:renderPlan,points:renderPoints})[tab]?.();
+}
+function ptab(btn,tab){
+  document.querySelectorAll('#sc-par .tb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#sc-par .tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('p-'+tab).classList.add('active');
+  ({approve:renderApprovals,study:renderParStudy,tasks:renderParTasks,rewards:renderParRw,payout:renderPayout,settings:loadSettings})[tab]?.();
 }
 
-function updateChildHeader(){
+function openO(id){document.getElementById(id).classList.add('on');}
+function closeO(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+
+// ═══════════════════════════════════
+// 자녀 화면
+// ═══════════════════════════════════
+function updChildHdr(){
   const c=ch();
   document.getElementById('child-pts').textContent=c.points.toLocaleString();
   document.getElementById('child-won').textContent=W(c.points);
 }
-
-// ══════════════════════════════════
-// TASKS
-// ══════════════════════════════════
 function renderTasks(){
-  updateChildHeader();renderWkBar('child-wk',curChild);
-  const el=document.getElementById('task-list');
-  const c=ch();
+  updChildHdr();renderWk('child-wk',curChild);
+  const el=document.getElementById('task-list'),c=ch();
   if(!c.tasks.length){el.innerHTML=empty('📝','등록된 과제가 없어요','부모님께 과제 추가를 요청해보세요!');return;}
   const today=new Date().toISOString().split('T')[0];
-  const sorted=[...c.tasks].sort((a,b)=>{
-    const ad=a.approvalStatus==='approved',bd=b.approvalStatus==='approved';
-    return ad!==bd?ad?1:-1:(a.dueDate||'z')<(b.dueDate||'z')?-1:1;
-  });
-  el.innerHTML=sorted.map(t=>{
+  el.innerHTML=[...c.tasks].sort((a,b)=>{const ad=a.approvalStatus==='approved',bd=b.approvalStatus==='approved';return ad!==bd?ad?1:-1:(a.dueDate||'z')<(b.dueDate||'z')?-1:1;}).map(t=>{
     const ap=t.approvalStatus==='approved',pe=t.approvalStatus==='pending',re=t.approvalStatus==='rejected';
     const ov=t.dueDate&&t.dueDate<today&&!ap;
     const sb=pe?'<span class="badge b-pend">⏳ 승인 대기</span>':ap?'<span class="badge b-ok">✓ 승인</span>':re?'<span class="badge b-ng">↩ 반려</span>':'';
-    const dt=t.dueDate?(ov?`<span style="color:var(--rd);font-size:11px;font-weight:600">⚠ ${t.dueDate}</span>`:`<span class="badge b-dt">📅${t.dueDate}</span>`):'';
+    const dt=t.dueDate?(ov?`<span style="color:var(--rd);font-size:11px;font-weight:700">⚠ ${t.dueDate}</span>`:`<span class="badge b-dt">📅${t.dueDate}</span>`):'';
     const cc=ap?'on':pe?'pend':'',cs=ap?'✓':pe?'…':'',canc=!pe&&!ap;
     return`<div class="task-item ${ap?'done':''}">
       <div class="chk ${cc}" style="cursor:${canc?'pointer':'default'}" onclick="${canc?`reqTask('${t.id}')`:''}">${cs}</div>
       <div class="ti-body">
         <div class="ti-title">${t.title}</div>
-        <div class="ti-meta">
-          <span class="badge b-sub">${t.subject}</span>
-          <span class="badge b-pts">${t.points.toLocaleString()}P <span style="color:var(--gn2);font-size:10px">${W(t.points)}</span></span>
-          ${dt}${sb}
-        </div>
-      </div>
-    </div>`;
+        <div class="ti-meta"><span class="badge b-sub">${t.subject}</span><span class="badge b-pts">${t.points.toLocaleString()}P <span style="color:var(--gn2);font-size:10px">${W(t.points)}</span></span>${dt}${sb}</div>
+      </div></div>`;
   }).join('');
 }
-
 function reqTask(id){
   const c=ch(),t=c.tasks.find(x=>x.id===id);
   if(!t||t.approvalStatus==='pending'||t.approvalStatus==='approved')return;
@@ -744,23 +766,20 @@ function reqTask(id){
   save();renderTasks();toast('✅ 완료 요청 전송! 부모님 승인을 기다려 주세요');
 }
 
-// ══════════════════════════════════
-// STUDY LOG - STUDENT
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 공부 인증 (학생)
+// ═══════════════════════════════════
 function openStudyModal(){
-  curQuiz=null;userAnswers=[];
-  ['sl-subj','sl-dur','sl-vol','sl-content'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('sl-dur').value='';
+  curQuiz=null;userAns=[];
+  ['sl-subj','sl-dur','sl-vol','sl-content'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('quiz-area').innerHTML='';
   document.getElementById('quiz-btn').disabled=false;
   document.getElementById('quiz-btn').innerHTML='퀴즈 받기';
-  clearImgState();
-  openO('study-modal');
+  clearImgState();openO('study-modal');
 }
-
 function handleImg(inp){
   const f=inp.files[0];if(!f)return;
-  if(f.size>8*1024*1024){toast('8MB 이하 이미지만 업로드 가능해요');return;}
+  if(f.size>8*1024*1024){toast('8MB 이하 이미지만 가능해요');return;}
   compressImg(f,b64=>{
     pendingImg=b64;
     document.getElementById('img-ph').style.display='none';
@@ -776,105 +795,68 @@ function compressImg(file,cb){
   r.onload=e=>{const img=new Image();img.onload=()=>{const M=900;let w=img.width,h=img.height;if(w>M){h=Math.round(h*M/w);w=M;}if(h>M){w=Math.round(w*M/h);h=M;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',.72));};img.src=e.target.result;};
   r.readAsDataURL(file);
 }
-
 async function genQuiz(){
-  const subj=document.getElementById('sl-subj').value;
-  const content=document.getElementById('sl-content').value.trim();
-  const vol=document.getElementById('sl-vol').value.trim();
-  if(content.length<10){toast('공부 내용을 먼저 10자 이상 입력해 주세요');return;}
-  const btn=document.getElementById('quiz-btn');
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span> 생성 중...';
-  document.getElementById('quiz-area').innerHTML='<div style="text-align:center;padding:14px;color:var(--tx2);font-size:13px">🤖 퀴즈를 만드는 중...</div>';
+  const subj=document.getElementById('sl-subj').value,content=document.getElementById('sl-content').value.trim(),vol=document.getElementById('sl-vol').value.trim();
+  if(content.length<10){toast('공부 내용을 10자 이상 입력해 주세요');return;}
+  const btn=document.getElementById('quiz-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  document.getElementById('quiz-area').innerHTML='<div style="text-align:center;padding:14px;color:var(--tx2);font-size:13px">🤖 퀴즈 만드는 중...</div>';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:`한국 중학생 학습 선생님이야. 아래 공부 내용을 기반으로 객관식 퀴즈 3문제를 만들어줘.
-
-과목: ${subj}
-학습량: ${vol||'미기재'}
-공부 내용: ${content}
-
-규칙:
-- 반드시 JSON 배열만 출력 (코드블록, 설명 없이)
-- 중학생 수준, 본문 내용 직접 반영
-- 정답 인덱스: 0~3
-
-[{"q":"질문","options":["①선택지","②선택지","③선택지","④선택지"],"answer":0}]`}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:`한국 중학생 선생님이야. 아래 내용 기반 객관식 퀴즈 3문제 만들어줘.\n과목:${subj}\n학습량:${vol||'미기재'}\n내용:${content}\n\n규칙: JSON 배열만 출력(코드블록 없이). 중학생 수준.\n[{"q":"질문","options":["①","②","③","④"],"answer":0}]`}]})});
     if(!res.ok)throw new Error();
     const data=await res.json();
     const txt=(data.content||[]).map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-    curQuiz=JSON.parse(txt);userAnswers=new Array(curQuiz.length).fill(null);
+    curQuiz=JSON.parse(txt);userAns=new Array(curQuiz.length).fill(null);
     renderQuiz();btn.innerHTML='🔄 재생성';btn.disabled=false;
   }catch(e){
-    document.getElementById('quiz-area').innerHTML='<div style="background:var(--rd-bg);border-radius:8px;padding:10px;font-size:12px;color:#ff7b72">AI 연결 실패. 퀴즈 없이 제출하거나 다시 시도해 주세요.</div>';
+    document.getElementById('quiz-area').innerHTML='<div style="background:var(--rd-bg);border-radius:9px;padding:11px;font-size:13px;color:#ff7b72">AI 연결 실패. 퀴즈 없이 제출하거나 다시 시도해 주세요.</div>';
     btn.innerHTML='다시 시도';btn.disabled=false;
   }
 }
-
 function renderQuiz(){
   if(!curQuiz)return;
   document.getElementById('quiz-area').innerHTML=curQuiz.map((q,qi)=>`
     <div style="margin-bottom:14px">
       <div class="quiz-q">${qi+1}. ${q.q}</div>
-      <div class="quiz-opts">${q.options.map((opt,oi)=>`<div class="quiz-opt ${userAnswers[qi]===oi?'sel':''}" onclick="selAns(${qi},${oi})"><span style="color:var(--am2);font-weight:700;min-width:18px">${['①','②','③','④'][oi]}</span><span>${opt}</span></div>`).join('')}</div>
+      <div class="quiz-opts">${q.options.map((opt,oi)=>`<div class="quiz-opt ${userAns[qi]===oi?'sel':''}" onclick="selAns(${qi},${oi})"><span style="color:var(--am2);font-weight:700;min-width:18px">${['①','②','③','④'][oi]}</span> ${opt}</div>`).join('')}</div>
     </div>`).join('');
 }
-function selAns(qi,oi){userAnswers[qi]=oi;renderQuiz();}
-function getScore(){if(!curQuiz)return null;const c=curQuiz.filter((q,i)=>userAnswers[i]===q.answer).length;return{correct:c,total:curQuiz.length,pct:Math.round(c/curQuiz.length*100)};}
-
+function selAns(qi,oi){userAns[qi]=oi;renderQuiz();}
+function getScore(){if(!curQuiz)return null;const c=curQuiz.filter((q,i)=>userAns[i]===q.answer).length;return{correct:c,total:curQuiz.length,pct:Math.round(c/curQuiz.length*100)};}
 function submitLog(){
-  const dur=parseInt(document.getElementById('sl-dur').value);
-  const vol=document.getElementById('sl-vol').value.trim();
-  const content=document.getElementById('sl-content').value.trim();
+  const dur=parseInt(document.getElementById('sl-dur').value),vol=document.getElementById('sl-vol').value.trim(),content=document.getElementById('sl-content').value.trim();
   if(!dur||dur<1){toast('공부 시간을 입력해 주세요');return;}
   if(!vol){toast('학습량을 입력해 주세요');return;}
   if(!content||content.length<5){toast('공부 내용을 입력해 주세요');return;}
-  const log={id:uid(),subject:document.getElementById('sl-subj').value,duration:dur,volume:vol,content,
-    image:pendingImg||null,quiz:curQuiz?{quiz:curQuiz,answers:userAnswers,score:getScore()}:null,
-    date:new Date().toISOString().split('T')[0],
-    dateLabel:new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'}),
-    ts:new Date().toISOString(),status:'pending',earnedPts:null};
-  ch().studyLogs.push(log);save();
-  closeO('study-modal');renderStudyList();
-  toast('📖 공부 인증 제출! 부모님 확인을 기다려 주세요');
+  const log={id:uid(),subject:document.getElementById('sl-subj').value,duration:dur,volume:vol,content,image:pendingImg||null,quiz:curQuiz?{quiz:curQuiz,answers:userAns,score:getScore()}:null,date:new Date().toISOString().split('T')[0],dateLabel:new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'}),ts:new Date().toISOString(),status:'pending',earnedPts:null};
+  ch().studyLogs.push(log);save();closeO('study-modal');renderStudyList();toast('📖 공부 인증 제출! 부모님 확인을 기다려 주세요');
 }
-
 function renderStudyList(){
-  const el=document.getElementById('study-list');
-  const logs=[...ch().studyLogs].reverse();
+  const el=document.getElementById('study-list'),logs=[...ch().studyLogs].reverse();
   if(!logs.length){el.innerHTML=empty('📖','아직 공부 인증이 없어요','공부하고 나서 인증을 추가해 보세요!');return;}
   el.innerHTML=logs.map(log=>{
     const sb=log.status==='pending'?'<span class="badge b-pend">⏳ 검토 대기</span>':log.status==='approved'?'<span class="badge b-ok">✓ 승인</span>':'<span class="badge b-ng">✕ 반려</span>';
     const sc=log.quiz?.score;
     return`<div class="log-card">
-      <div class="log-hd">
-        <div><div class="log-title">${log.subject} · ${log.duration}분</div>
-          <div class="log-meta">${log.dateLabel} · ${log.volume}${sc?` · 퀴즈 ${sc.correct}/${sc.total} (${sc.pct}%)`:''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-          ${sb}${log.image?'<span style="font-size:10px;color:var(--bl2)">📷</span>':''}
-        </div>
-      </div>
+      <div class="log-hd"><div><div class="log-title">${log.subject} · ${log.duration}분</div><div class="log-meta">${log.dateLabel} · ${log.volume}${sc?` · 퀴즈 ${sc.correct}/${sc.total} (${sc.pct}%)`:''}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">${sb}${log.image?'<span style="font-size:10px;color:var(--bl2)">📷</span>':''}</div></div>
       <div class="log-box" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(log.content)}</div>
-      ${log.earnedPts!=null?`<div style="font-size:12px;color:var(--gn2);font-weight:600">+${log.earnedPts.toLocaleString()}P (${W(log.earnedPts)}) 획득!</div>`:''}
+      ${log.earnedPts!=null?`<div style="font-size:13px;color:var(--gn2);font-weight:700">+${log.earnedPts.toLocaleString()}P (${W(log.earnedPts)}) 획득!</div>`:''}
     </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════
-// STUDY PLAN
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 학습 계획
+// ═══════════════════════════════════
 function renderPlan(){
   document.getElementById('plan-tbody').innerHTML=SUBJS.map(subj=>{
-    const cells=DKEYS.map((day,i)=>{
-      const c=(ch().plan[subj]||{})[day]||{};
-      const inner=c.min?`<div class="plan-min">${c.min}분</div><div class="plan-topic">${esc(c.topic||'')}</div>`:`<div style="min-height:34px"></div>`;
-      return`<td onclick="openPlanModal('${subj}','${day}','${DAYS[i]}')">${inner}</td>`;
-    }).join('');
-    return`<tr><th style="font-size:11px;background:var(--bg3);color:var(--tx2);font-weight:600">${subj}</th>${cells}</tr>`;
+    const cells=DKEYS.map((day,i)=>{const c=(ch().plan[subj]||{})[day]||{};const inner=c.min?`<div class="plan-min">${c.min}분</div><div class="plan-topic">${esc(c.topic||'')}</div>`:`<div style="min-height:34px"></div>`;return`<td onclick="openPlanModal('${subj}','${day}','${DLBL[i]}')">${inner}</td>`;}).join('');
+    return`<tr><th style="font-size:11px;background:var(--bg3);color:var(--tx2);font-weight:700">${subj}</th>${cells}</tr>`;
   }).join('');
 }
 function openPlanModal(subj,dayKey,dayLabel){
   document.getElementById('pi-subj').value=subj;document.getElementById('pi-day').value=dayKey;
-  document.getElementById('plan-modal-ttl').textContent=`${subj} · ${dayLabel}요일`;
+  document.getElementById('plan-ttl').textContent=`${subj} · ${dayLabel}요일`;
   const c=(ch().plan[subj]||{})[dayKey]||{};
   document.getElementById('pi-min').value=c.min||'';document.getElementById('pi-topic').value=c.topic||'';
   openO('plan-modal');
@@ -887,258 +869,126 @@ function savePlan(){
   save();closeO('plan-modal');renderPlan();toast('📅 계획 저장됨');
 }
 
-// ══════════════════════════════════
-// POINTS TAB
-// ══════════════════════════════════
+// ═══════════════════════════════════
+// 포인트 탭
+// ═══════════════════════════════════
 function renderPoints(){
   const c=ch();
   document.getElementById('sp-pts').textContent=c.points.toLocaleString();
   document.getElementById('sp-won').textContent=W(c.points);
   document.getElementById('sp-done').textContent=c.tasks.filter(t=>t.approvalStatus==='approved').length;
   document.getElementById('sp-earned').textContent=c.history.filter(h=>h.pts>0).reduce((s,h)=>s+h.pts,0).toLocaleString();
-
   document.getElementById('rw-list').innerHTML=D.rewards.length?D.rewards.map(r=>{
     const cu=c.points>=r.cost,pe=c.approvals.find(a=>a.type==='reward'&&a.rewardId===r.id&&a.status==='pending');
-    return`<div class="rw-card">
-      <div><div style="font-weight:600">${r.name}</div>${r.desc?`<div style="font-size:12px;color:var(--tx2)">${r.desc}</div>`:''}</div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <span class="badge b-pts">${W(r.cost)}</span>
-        <button class="btn btn-gh" style="font-size:11px;padding:5px 10px" onclick="reqReward('${r.id}')" ${!cu||pe?'disabled':''}>
-          ${pe?'대기중':cu?'사용하기':'포인트 부족'}
-        </button>
-      </div>
-    </div>`;
+    return`<div class="rw-card"><div><div style="font-weight:700;font-size:15px">${r.name}</div>${r.desc?`<div style="font-size:13px;color:var(--tx2)">${r.desc}</div>`:''}</div>
+    <div style="display:flex;align-items:center;gap:9px;flex-shrink:0"><span class="badge b-pts">${W(r.cost)}</span><button class="btn btn-gh" style="font-size:13px;padding:8px 14px;min-height:38px" onclick="reqReward('${r.id}')" ${!cu||pe?'disabled':''}>${pe?'대기중':cu?'사용하기':'부족'}</button></div></div>`;
   }).join(''):empty('🎁','등록된 보상이 없어요','');
-
-  document.getElementById('hist-list').innerHTML=c.history.length
-    ?[...c.history].reverse().map(h=>`<div class="hist-item"><div><div style="font-size:13px">${h.desc}${h.paid?'<span style="font-size:10px;color:var(--tx3);margin-left:6px">✓이체됨</span>':''}</div><div style="font-size:11px;color:var(--tx3)">${h.date}</div></div><div class="hist-pts ${h.pts>0?'p-plus':'p-minus'}">${h.pts>0?'+':''}${h.pts.toLocaleString()}P</div></div>`).join('')
-    :empty('📊','아직 내역이 없어요','');
+  document.getElementById('hist-list').innerHTML=c.history.length?[...c.history].reverse().map(h=>`<div class="hist-item"><div><div style="font-size:14px">${h.desc}${h.paid?'<span style="font-size:10px;color:var(--tx3);margin-left:6px">✓이체</span>':''}</div><div style="font-size:11px;color:var(--tx3)">${h.date}</div></div><div class="hpts ${h.pts>0?'p-plus':'p-minus'}">${h.pts>0?'+':''}${h.pts.toLocaleString()}P</div></div>`).join(''):empty('📊','아직 내역이 없어요','');
 }
 function reqReward(rid){
-  const r=D.rewards.find(x=>x.id===rid),c=ch();
-  if(!r||c.points<r.cost)return;
+  const r=D.rewards.find(x=>x.id===rid),c=ch();if(!r||c.points<r.cost)return;
   if(c.approvals.find(a=>a.type==='reward'&&a.rewardId===rid&&a.status==='pending')){toast('이미 요청 중이에요');return;}
   c.approvals.push({id:uid(),type:'reward',rewardId:rid,title:r.name,points:r.cost,date:new Date().toLocaleDateString('ko-KR'),status:'pending'});
   save();renderPoints();toast('🎁 보상 요청 전송!');
 }
 
-// ══════════════════════════════════
-// PARENT VIEW
-// ══════════════════════════════════
-function renderPar(){
-  parChild='c1';
-  document.querySelectorAll('.csel-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  updateParChildPts();renderWkBar('par-wk',parChild);updateBadges();renderApprovals();
-}
+// ═══════════════════════════════════
+// 부모 화면
+// ═══════════════════════════════════
+function renderPar(){parChild='c1';document.querySelectorAll('.csel-btn').forEach((b,i)=>b.classList.toggle('active',i===0));updPtsSummary();renderWk('par-wk',parChild);updBadges();renderApprovals();}
+function selPC(cid,btn){parChild=cid;document.querySelectorAll('.csel-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderWk('par-wk',parChild);updBadges();const a=document.querySelector('#sc-par .tab-pane.active');if(a)({pApprove:renderApprovals,'p-approve':renderApprovals,'p-study':renderParStudy,'p-tasks':renderParTasks,'p-rewards':renderParRw,'p-payout':renderPayout,'p-settings':loadSettings})[a.id]?.();}
+function updPtsSummary(){CIDS.forEach((cid,i)=>{const el=document.getElementById('cs'+(i+1));if(el)el.textContent=W(D.children[cid].points);});}
+function updBadges(){updPtsSummary();const c=pch(),ac=c.approvals.filter(a=>a.status==='pending').length,sc=c.studyLogs.filter(l=>l.status==='pending').length;const ab=document.getElementById('appr-badge'),sb=document.getElementById('study-badge');if(ab){ab.textContent=ac;ab.style.display=ac?'inline-flex':'none';}if(sb){sb.textContent=sc;sb.style.display=sc?'inline-flex':'none';}}
 
-function selParChild(cid,btn){
-  parChild=cid;
-  document.querySelectorAll('.csel-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderWkBar('par-wk',parChild);updateBadges();
-  // re-render current active tab
-  const active=document.querySelector('#sc-par .tab-pane.active');
-  if(active)({
-    'p-approve':renderApprovals,'p-study':renderParStudy,'p-tasks':renderParTasks,
-    'p-rewards':renderParRewards,'p-payout':renderPayout,'p-settings':loadSettings
-  })[active.id]?.();
-}
-
-function updateParChildPts(){
-  CHILD_IDS.forEach(cid=>{
-    const el=document.getElementById('cs-pts-'+cid);
-    if(el) el.textContent='('+W(D.children[cid].points)+')';
-  });
-}
-
-function ptab(btn,tab){
-  document.querySelectorAll('#sc-par .tb').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('#sc-par .tab-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');document.getElementById('p-'+tab).classList.add('active');
-  ({approve:renderApprovals,study:renderParStudy,tasks:renderParTasks,rewards:renderParRewards,payout:renderPayout,settings:loadSettings})[tab]?.();
-}
-
-function updateBadges(){
-  updateParChildPts();
-  const c=pch();
-  const ac=c.approvals.filter(a=>a.status==='pending').length;
-  const sc=c.studyLogs.filter(l=>l.status==='pending').length;
-  const ab=document.getElementById('appr-badge'),sb=document.getElementById('study-badge');
-  if(ab){ab.textContent=ac;ab.style.display=ac?'inline-flex':'none';}
-  if(sb){sb.textContent=sc;sb.style.display=sc?'inline-flex':'none';}
-}
-
-// ── Approvals ──
 function renderApprovals(){
-  updateBadges();renderWkBar('par-wk',parChild);
-  const el=document.getElementById('appr-list'),c=pch();
-  const pending=c.approvals.filter(a=>a.status==='pending');
+  updBadges();renderWk('par-wk',parChild);
+  const el=document.getElementById('appr-list'),c=pch(),pending=c.approvals.filter(a=>a.status==='pending');
   if(!pending.length){el.innerHTML=empty('✨','대기 중인 승인 요청이 없어요','');return;}
-  const earned=weeklyEarned(parChild),limit=D.weeklyLimit||DEF_LIMIT;
-  el.innerHTML=`<div style="font-size:12px;color:var(--tx2);margin-bottom:12px">📋 <strong style="color:var(--tx)">${c.name}</strong>의 승인 대기 목록</div>`+pending.map(a=>{
-    const isT=a.type==='task',exc=isT&&(earned+a.points)>limit;
+  const earned=wkEarned(parChild),lim=D.weeklyLimit||DEF_LIMIT;
+  el.innerHTML=`<div style="font-size:13px;color:var(--tx2);margin-bottom:12px"><b style="color:var(--tx)">${c.name}</b>의 승인 대기</div>`+pending.map(a=>{
+    const isT=a.type==='task',exc=isT&&(earned+a.points)>lim;
     return`<div class="appr-card">
-      <div class="appr-hd">
-        <div>
-          <div style="font-weight:600">${isT?'📝':'🎁'} ${a.title}</div>
-          <div style="font-size:12px;color:var(--tx2);margin-top:3px">${isT?`과목: ${a.subject||'-'} · 과제 완료 요청`:'보상 교환 요청'} · ${a.date}</div>
-          ${exc?`<div style="font-size:11px;color:#ff7b72;margin-top:3px">⚠ 승인 시 이번 주 한도 초과 (${W(earned+a.points)} / ${W(limit)})</div>`:''}
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="badge b-pts">${isT?'+':'-'}${a.points.toLocaleString()}P</div>
-          <div style="font-size:10px;color:var(--gn2);margin-top:3px">${isT?'+':'−'}${W(a.points)}</div>
-        </div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div><div style="font-weight:700;font-size:15px">${isT?'📝':'🎁'} ${a.title}</div><div style="font-size:12px;color:var(--tx2);margin-top:3px">${isT?`과목: ${a.subject||'-'} · 과제 완료`:'보상 교환 요청'} · ${a.date}</div>${exc?`<div style="font-size:12px;color:#ff7b72;margin-top:3px">⚠ 승인 시 한도 초과 (${W(earned+a.points)} / ${W(lim)})</div>`:''}</div>
+        <div style="text-align:right;flex-shrink:0"><div class="badge b-pts">${isT?'+':'-'}${a.points.toLocaleString()}P</div><div style="font-size:11px;color:var(--gn2);margin-top:3px">${isT?'+':'−'}${W(a.points)}</div></div>
       </div>
-      <div class="appr-acts">
-        <button class="btn btn-gn" style="flex:1" onclick="doAppr('${a.id}',true)">✓ 승인</button>
-        <button class="btn btn-rd" style="flex:1" onclick="doAppr('${a.id}',false)">✕ 반려</button>
-      </div>
+      <div class="appr-acts"><button class="btn btn-gn" style="flex:1" onclick="doAppr('${a.id}',true)">✓ 승인</button><button class="btn btn-rd" style="flex:1" onclick="doAppr('${a.id}',false)">✕ 반려</button></div>
     </div>`;
   }).join('');
 }
-
 function doAppr(apprId,approve){
   const c=pch(),a=c.approvals.find(x=>x.id===apprId);if(!a)return;
   a.status=approve?'approved':'rejected';
-  if(a.type==='task'){
-    const t=c.tasks.find(x=>x.id===a.taskId);
-    if(t){t.approvalStatus=approve?'approved':'rejected';if(!approve)t.completed=false;}
-    if(approve){c.points+=a.points;c.history.push({id:uid(),desc:`과제 완료: ${a.title}`,pts:a.points,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});}
-  }else{
-    if(approve){c.points=Math.max(0,c.points-a.points);c.history.push({id:uid(),desc:`보상 사용: ${a.title}`,pts:-a.points,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});}
-  }
-  save();renderApprovals();renderWkBar('par-wk',parChild);updateParChildPts();
-  toast(approve?'✅ 승인 완료!':'❌ 반려 처리됨');
+  if(a.type==='task'){const t=c.tasks.find(x=>x.id===a.taskId);if(t){t.approvalStatus=approve?'approved':'rejected';if(!approve)t.completed=false;}if(approve){c.points+=a.points;c.history.push({id:uid(),desc:`과제: ${a.title}`,pts:a.points,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});}}
+  else{if(approve){c.points=Math.max(0,c.points-a.points);c.history.push({id:uid(),desc:`보상: ${a.title}`,pts:-a.points,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});}}
+  save();renderApprovals();renderWk('par-wk',parChild);updPtsSummary();toast(approve?'✅ 승인 완료!':'❌ 반려 처리됨');
 }
 
-// ── Study Review ──
+// ── 공부 검토 ──
+function qMul(pct){return pct>=90?1.3:pct>=70?1.15:pct>=50?1.0:pct>=30?0.9:0.8;}
+function qMulLbl(pct){return pct>=90?'×1.3 (90%↑)':pct>=70?'×1.15 (70%↑)':pct>=50?'×1.0':pct>=30?'×0.9':' ×0.8';}
 function renderParStudy(){
-  updateBadges();
-  const el=document.getElementById('par-study-list'),c=pch();
-  const logs=[...c.studyLogs].reverse();
+  updBadges();const el=document.getElementById('par-study-list'),c=pch(),logs=[...c.studyLogs].reverse();
   if(!logs.length){el.innerHTML=empty('📖','공부 인증 기록이 없어요','');return;}
-
-  // Point calculation multiplier labels
-  const quizLabel=pct=>pct>=90?'×1.3 (90%↑)':pct>=70?'×1.15 (70%↑)':pct>=50?'×1.0 (50%↑)':pct>=30?'×0.9 (30%↑)':'×0.8 (30%↓)';
-
-  el.innerHTML=`<div style="font-size:12px;color:var(--tx2);margin-bottom:12px">📋 <strong style="color:var(--tx)">${c.name}</strong>의 공부 인증 목록 <span style="color:var(--tx3)">(공부 1분 = ${D.pointPerMin||DEF_PPM}P 기본, 학습량보너스+퀴즈배율 적용)</span></div>`
-  +logs.map(log=>{
-    const sb=log.status==='pending'?'<span class="badge b-pend">⏳ 검토 대기</span>':log.status==='approved'?'<span class="badge b-ok">✓ 승인</span>':'<span class="badge b-ng">✕ 반려</span>';
-    const sc=log.quiz?.score;
-    const baseP=(log.duration)*(D.pointPerMin||DEF_PPM);
-    return`<div class="log-card" ${log.status==='pending'?`style="cursor:pointer" onclick="openPSR('${log.id}')"`:''}">
-      <div class="log-hd">
-        <div>
-          <div class="log-title">${log.subject} · ${log.duration}분 <span style="color:var(--tx2);font-size:12px;font-weight:400">학습량: ${log.volume}</span></div>
-          <div class="log-meta">${log.dateLabel}${sc?` · 퀴즈 ${sc.correct}/${sc.total} (${sc.pct}%) → ${quizLabel(sc.pct)}`:' · 퀴즈 없음'}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-          ${sb}
-          ${log.image?'<span style="font-size:10px;color:var(--bl2)">📷 사진있음</span>':''}
-          ${log.earnedPts!=null?`<div style="font-size:11px;color:var(--gn2);font-weight:700">+${log.earnedPts.toLocaleString()}P</div>`:''}
-        </div>
-      </div>
+  el.innerHTML=`<div style="font-size:13px;color:var(--tx2);margin-bottom:12px"><b style="color:var(--tx)">${c.name}</b>의 공부 인증 · <span style="color:var(--tx3)">탭해서 검토</span></div>`+logs.map(log=>{
+    const sb=log.status==='pending'?'<span class="badge b-pend">⏳ 대기</span>':log.status==='approved'?'<span class="badge b-ok">✓ 승인</span>':'<span class="badge b-ng">✕ 반려</span>';
+    const sc=log.quiz?.score,bp=log.duration*(D.pointPerMin||DEF_PPM);
+    return`<div class="log-card" ${log.status==='pending'?`onclick="openPSR('${log.id}')"`:''}style="${log.status==='pending'?'cursor:pointer':''}">
+      <div class="log-hd"><div><div class="log-title">${log.subject} · ${log.duration}분 <span style="color:var(--tx2);font-size:13px;font-weight:400">${log.volume}</span></div><div class="log-meta">${log.dateLabel}${sc?` · 퀴즈 ${sc.correct}/${sc.total} (${sc.pct}%) → ${qMulLbl(sc.pct)}`:' · 퀴즈없음'}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">${sb}${log.image?'<span style="font-size:11px;color:var(--bl2)">📷</span>':''}${log.earnedPts!=null?`<div style="font-size:12px;color:var(--gn2);font-weight:700">+${log.earnedPts.toLocaleString()}P</div>`:''}</div></div>
       <div class="log-box" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(log.content)}</div>
-      ${log.status==='pending'?'<div style="font-size:11px;color:var(--am2);margin-top:6px">👆 클릭해서 검토하기 (기본 '+baseP.toLocaleString()+'P → 학습량보너스 + 퀴즈배율 적용)</div>':''}
+      ${log.status==='pending'?`<div style="font-size:12px;color:var(--am2);margin-top:6px">👆 탭해서 검토 (기본 ${bp.toLocaleString()}P)</div>`:''}
     </div>`;
   }).join('');
 }
-
-function quizMultiplier(pct){return pct>=90?1.3:pct>=70?1.15:pct>=50?1.0:pct>=30?0.9:0.8;}
-function quizMultLabel(pct){return pct>=90?'×1.3 (90%↑)':pct>=70?'×1.15 (70%↑)':pct>=50?'×1.0':pct>=30?'×0.9 (30%↑)':'×0.8 (30%↓)';}
-
 function openPSR(logId){
   const c=pch(),log=c.studyLogs.find(l=>l.id===logId);if(!log)return;
-  curLogId=logId;
-  document.getElementById('vol-bonus').value='0';
-
-  // Build content
+  curLogId=logId;document.getElementById('vol-bonus').value='0';
   const sc=log.quiz?.score;
-  let quizHtml='';
-  if(log.quiz){
-    quizHtml=`<div style="border-top:1px solid var(--b);padding-top:12px;margin-top:12px">
-      <div style="font-weight:600;margin-bottom:10px">🤖 AI 퀴즈 결과 — ${sc.correct}/${sc.total} 정답 (${sc.pct}%)</div>
-      ${log.quiz.quiz.map((q,qi)=>{const sel=log.quiz.answers[qi];return`<div style="margin-bottom:12px"><div class="quiz-q">${qi+1}. ${q.q}</div>${q.options.map((opt,oi)=>{let cl='';if(oi===q.answer)cl='ok';else if(oi===sel)cl='ng';return`<div class="quiz-opt ${cl}" style="cursor:default">${['①','②','③','④'][oi]} ${opt}</div>`;}).join('')}</div>`;}).join('')}
-      <div class="quiz-res ${sc.pct>=70?'qr-good':'qr-bad'}">${sc.pct>=70?'✓ 우수':'⚠ 추가 학습 필요'} — ${sc.correct}/${sc.total} (${sc.pct}%) → 퀴즈 배율 ${quizMultLabel(sc.pct)}</div>
-    </div>`;
-  }
-
-  document.getElementById('psr-content').innerHTML=`
-    <div style="background:var(--bg2);border-radius:var(--r);padding:14px;margin-bottom:4px">
-      <div style="font-weight:700;font-size:15px;margin-bottom:4px">${log.subject} · ${log.duration}분</div>
-      <div style="font-size:12px;color:var(--tx2);margin-bottom:4px">${log.dateLabel}</div>
-      <div style="font-size:12px;color:var(--am2);margin-bottom:10px;font-weight:600">📦 학습량: ${log.volume}</div>
-      <div class="log-box">${esc(log.content)}</div>
-      ${log.image?`<img class="log-img" style="margin-top:10px" src="${log.image}" onclick="showFull('${log.id}')" title="클릭→크게보기">` : ''}
-      ${quizHtml}
-    </div>`;
-
+  let qHtml='';
+  if(log.quiz){qHtml=`<div style="border-top:1px solid var(--b);padding-top:12px;margin-top:12px"><div style="font-weight:700;margin-bottom:10px">🤖 퀴즈 결과 — ${sc.correct}/${sc.total} (${sc.pct}%)</div>${log.quiz.quiz.map((q,qi)=>{const sel=log.quiz.answers[qi];return`<div style="margin-bottom:12px"><div class="quiz-q">${qi+1}. ${q.q}</div>${q.options.map((opt,oi)=>{let cl='';if(oi===q.answer)cl='ok';else if(oi===sel)cl='ng';return`<div class="quiz-opt ${cl}" style="cursor:default">${['①','②','③','④'][oi]} ${opt}</div>`;}).join('')}</div>`;}).join('')}<div class="quiz-res ${sc.pct>=70?'qr-good':'qr-bad'}">${sc.pct>=70?'✓ 우수':'⚠ 추가 학습 필요'} — ${sc.pct}% → 배율 ${qMulLbl(sc.pct)}</div></div>`;}
+  document.getElementById('psr-content').innerHTML=`<div style="background:var(--bg2);border-radius:var(--r);padding:14px;margin-bottom:4px">
+    <div style="font-weight:700;font-size:16px;margin-bottom:4px">${log.subject} · ${log.duration}분</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:4px">${log.dateLabel}</div>
+    <div style="font-size:13px;color:var(--am2);font-weight:600;margin-bottom:10px">📦 ${log.volume}</div>
+    <div class="log-box">${esc(log.content)}</div>
+    ${log.image?`<img class="log-img" style="margin-top:10px" src="${log.image}" onclick="showFull('${log.id}')">` : ''}
+    ${qHtml}</div>`;
   recalcPts();
-  document.getElementById('psr-approve-btn').disabled=log.status!=='pending';
-  document.getElementById('psr-reject-btn').disabled=log.status!=='pending';
+  document.getElementById('psr-ok').disabled=log.status!=='pending';
+  document.getElementById('psr-rej').disabled=log.status!=='pending';
   openO('psr-modal');
 }
-
 function recalcPts(){
   const c=pch(),log=c.studyLogs.find(l=>l.id===curLogId);if(!log)return;
-  const ppm=D.pointPerMin||DEF_PPM;
-  const timeP=log.duration*ppm;
-  const volBonus=parseInt(document.getElementById('vol-bonus').value)||0;
-  const sc=log.quiz?.score;
-  const mul=sc?quizMultiplier(sc.pct):1.0;
-  const mulLabel=sc?quizMultLabel(sc.pct):'×1.0 (퀴즈 없음)';
-  const sub=timeP+volBonus;
-  const final=Math.round(sub*mul);
-
+  const ppm=D.pointPerMin||DEF_PPM,timeP=log.duration*ppm,volB=parseInt(document.getElementById('vol-bonus').value)||0;
+  const sc=log.quiz?.score,mul=sc?qMul(sc.pct):1.0,mulLbl=sc?qMulLbl(sc.pct):'×1.0 (퀴즈없음)';
+  const sub=timeP+volB,final=Math.round(sub*mul);
   document.getElementById('final-pts').value=final;
-
-  const quizRow=sc
-    ?`<div class="pf-row"><span class="pf-mul">퀴즈 정답률 배율</span><span class="pf-mul">${sc.pct}% → ${mulLabel}</span></div>`
-    :`<div class="pf-row"><span style="color:var(--tx3)">퀴즈 배율</span><span style="color:var(--tx3)">퀴즈 없음 (×1.0)</span></div>`;
-
-  document.getElementById('pts-formula-box').innerHTML=`
-    <div class="pts-formula">
-      <div style="font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:8px">📊 포인트 산출 내역</div>
-      <div class="pf-row"><span>⏱ 시간 점수 (${log.duration}분 × ${ppm}P/분)</span><span class="pf-val">${timeP.toLocaleString()}P</span></div>
-      <div class="pf-row"><span class="pf-bonus">📦 학습량 보너스</span><span class="pf-bonus">+${volBonus.toLocaleString()}P</span></div>
-      <div class="pf-row" style="border-top:1px dashed var(--b2);margin-top:4px;padding-top:6px"><span>소계</span><span>${sub.toLocaleString()}P</span></div>
-      ${quizRow}
-      <div class="pf-row total"><span>✨ 최종 추천 포인트</span><span class="pf-val">${final.toLocaleString()}P <span style="color:var(--gn2);font-size:11px">${W(final)}</span></span></div>
-    </div>`;
+  document.getElementById('pts-formula-box').innerHTML=`<div class="pts-formula">
+    <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:8px">📊 포인트 산출</div>
+    <div class="pf-row"><span>⏱ 시간 (${log.duration}분 × ${ppm}P)</span><span class="pf-val">${timeP.toLocaleString()}P</span></div>
+    <div class="pf-row"><span class="pf-bonus">📦 학습량 보너스</span><span class="pf-bonus">+${volB.toLocaleString()}P</span></div>
+    <div class="pf-row" style="border-top:1px dashed var(--b2);margin-top:4px;padding-top:6px"><span>소계</span><span>${sub.toLocaleString()}P</span></div>
+    <div class="pf-row"><span class="pf-mul">퀴즈 배율</span><span class="pf-mul">${mulLbl}</span></div>
+    <div class="pf-row total"><span>✨ 최종</span><span class="pf-val">${final.toLocaleString()}P <span style="color:var(--gn2);font-size:12px">${W(final)}</span></span></div>
+  </div>`;
 }
-
 function doStudyAppr(approve){
   const c=pch(),log=c.studyLogs.find(l=>l.id===curLogId);if(!log)return;
   log.status=approve?'approved':'rejected';
-  if(approve){
-    const final=parseInt(document.getElementById('final-pts').value)||0;
-    log.earnedPts=final;c.points+=final;
-    c.history.push({id:uid(),desc:`📖 공부인증: ${log.subject} ${log.duration}분 (${log.volume})`,pts:final,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});
-    toast(`✅ 승인! ${final.toLocaleString()}P (${W(final)}) 지급`);
-  }else toast('❌ 반려 처리됨');
-  save();closeO('psr-modal');renderParStudy();updateParChildPts();renderWkBar('par-wk',parChild);updateBadges();
+  if(approve){const f=parseInt(document.getElementById('final-pts').value)||0;log.earnedPts=f;c.points+=f;c.history.push({id:uid(),desc:`📖 ${log.subject} ${log.duration}분 (${log.volume})`,pts:f,date:new Date().toLocaleDateString('ko-KR'),ts:new Date().toISOString(),paid:false});toast(`✅ ${f.toLocaleString()}P (${W(f)}) 지급!`);}else toast('❌ 반려 처리됨');
+  save();closeO('psr-modal');renderParStudy();updPtsSummary();renderWk('par-wk',parChild);updBadges();
 }
 
-// ── Parent Task/Reward ──
+// ── 과제 관리 ──
 function renderParTasks(){
   const el=document.getElementById('par-task-list'),c=pch();
   if(!c.tasks.length){el.innerHTML=empty('📝','과제가 없어요','');return;}
-  el.innerHTML=`<div style="font-size:12px;color:var(--tx2);margin-bottom:10px"><strong style="color:var(--tx)">${c.name}</strong>의 과제 목록</div>`
-  +[...c.tasks].sort((a,b)=>(a.dueDate||'z')<(b.dueDate||'z')?-1:1).map(t=>`
+  el.innerHTML=`<div style="font-size:13px;color:var(--tx2);margin-bottom:10px"><b style="color:var(--tx)">${c.name}</b>의 과제</div>`+[...c.tasks].sort((a,b)=>(a.dueDate||'z')<(b.dueDate||'z')?-1:1).map(t=>`
     <div class="task-item" style="align-items:center">
-      <div style="flex:1;min-width:0">
-        <div class="ti-title">${t.title}</div>
-        <div class="ti-meta" style="margin-top:5px">
-          <span class="badge b-sub">${t.subject}</span>
-          <span class="badge b-pts">${W(t.points)}</span>
-          ${t.dueDate?`<span class="badge b-dt">📅${t.dueDate}</span>`:''}
-          ${t.approvalStatus==='approved'?'<span class="badge b-ok">완료</span>':''}
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn btn-gh" style="font-size:11px;padding:5px 10px" onclick="openTaskModal('${t.id}')">수정</button>
-        <button class="btn btn-rd" style="font-size:11px;padding:5px 10px" onclick="delTask('${t.id}')">삭제</button>
-      </div>
+      <div style="flex:1;min-width:0"><div class="ti-title">${t.title}</div><div class="ti-meta" style="margin-top:5px"><span class="badge b-sub">${t.subject}</span><span class="badge b-pts">${W(t.points)}</span>${t.dueDate?`<span class="badge b-dt">📅${t.dueDate}</span>`:''}${t.approvalStatus==='approved'?'<span class="badge b-ok">완료</span>':''}</div></div>
+      <div style="display:flex;gap:7px;flex-shrink:0"><button class="btn btn-gh" style="font-size:12px;padding:7px 12px;min-height:38px" onclick="openTaskModal('${t.id}')">수정</button><button class="btn btn-rd" style="font-size:12px;padding:7px 12px;min-height:38px" onclick="delTask('${t.id}')">삭제</button></div>
     </div>`).join('');
 }
 function openTaskModal(tid){
@@ -1152,230 +1002,187 @@ function saveTask(){
   const title=document.getElementById('ti-title').value.trim(),pts=parseInt(document.getElementById('ti-pts').value);
   if(!title){toast('과제명을 입력해주세요');return;}if(!pts||pts<1){toast('포인트를 입력해주세요');return;}
   const eid=document.getElementById('edit-tid').value,p={title,points:pts,subject:document.getElementById('ti-subj').value,dueDate:document.getElementById('ti-due').value||null};
-  const c=pch();
-  if(eid){const t=c.tasks.find(x=>x.id===eid);if(t)Object.assign(t,p);}else c.tasks.push({id:uid(),...p,completed:false,approvalStatus:null});
+  const c=pch();if(eid){const t=c.tasks.find(x=>x.id===eid);if(t)Object.assign(t,p);}else c.tasks.push({id:uid(),...p,completed:false,approvalStatus:null});
   save();closeO('task-modal');renderParTasks();toast(eid?'✏️ 수정됨':'✅ 추가됨');
 }
-function delTask(tid){
-  if(!confirm('삭제할까요?'))return;
-  const c=pch();c.tasks=c.tasks.filter(t=>t.id!==tid);c.approvals=c.approvals.filter(a=>a.taskId!==tid);
-  save();renderParTasks();toast('🗑️ 삭제됨');
-}
+function delTask(tid){if(!confirm('삭제할까요?'))return;const c=pch();c.tasks=c.tasks.filter(t=>t.id!==tid);c.approvals=c.approvals.filter(a=>a.taskId!==tid);save();renderParTasks();toast('🗑️ 삭제됨');}
 
-function renderParRewards(){
+// ── 보상 ──
+function renderParRw(){
   const el=document.getElementById('par-rw-list');
   if(!D.rewards.length){el.innerHTML=empty('🎁','등록된 보상이 없어요','');return;}
-  el.innerHTML='<div style="font-size:12px;color:var(--tx2);margin-bottom:10px">보상은 자녀 모두 공유</div>'
-  +D.rewards.map(r=>`
-    <div class="rw-card">
-      <div><div style="font-weight:600">${r.name}</div>${r.desc?`<div style="font-size:12px;color:var(--tx2)">${r.desc}</div>`:''}</div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <span class="badge b-pts">${W(r.cost)}</span>
-        <button class="btn btn-rd" style="font-size:11px;padding:5px 10px" onclick="delReward('${r.id}')">삭제</button>
-      </div>
-    </div>`).join('');
+  el.innerHTML=D.rewards.map(r=>`<div class="rw-card"><div><div style="font-weight:700;font-size:15px">${r.name}</div>${r.desc?`<div style="font-size:13px;color:var(--tx2)">${r.desc}</div>`:''}</div><div style="display:flex;align-items:center;gap:9px;flex-shrink:0"><span class="badge b-pts">${W(r.cost)}</span><button class="btn btn-rd" style="font-size:12px;padding:7px 12px;min-height:38px" onclick="delRw('${r.id}')">삭제</button></div></div>`).join('');
 }
-function openRewardModal(){['ri-name','ri-cost','ri-desc'].forEach(id=>document.getElementById(id).value='');openO('rw-modal');}
+function openRwModal(){['ri-name','ri-cost','ri-desc'].forEach(id=>document.getElementById(id).value='');openO('rw-modal');}
 function saveReward(){
   const name=document.getElementById('ri-name').value.trim(),cost=parseInt(document.getElementById('ri-cost').value);
   if(!name){toast('보상 이름을 입력해주세요');return;}if(!cost||cost<1){toast('필요 포인트를 입력해주세요');return;}
   D.rewards.push({id:uid(),name,cost,desc:document.getElementById('ri-desc').value.trim()});
-  save();closeO('rw-modal');renderParRewards();toast('🎁 보상 추가됨');
+  save();closeO('rw-modal');renderParRw();toast('🎁 추가됨');
 }
-function delReward(rid){if(!confirm('삭제할까요?'))return;D.rewards=D.rewards.filter(r=>r.id!==rid);save();renderParRewards();toast('🗑️ 삭제됨');}
+function delRw(rid){if(!confirm('삭제할까요?'))return;D.rewards=D.rewards.filter(r=>r.id!==rid);save();renderParRw();toast('🗑️ 삭제됨');}
 
-// ══════════════════════════════════
-// WEEKLY PAYOUT (주간 정산)
-// ══════════════════════════════════
+// ── 정산 ──
 function renderPayout(){
-  const el=document.getElementById('payout-content');
-  const{sun,sat}=getWeekBounds();
+  const el=document.getElementById('payout-content'),{sun,sat}=weekBounds();
   const fmt=d=>d.toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  const wkLabel=`${fmt(sun)} (일) ~ ${fmt(sat)} (토)`;
-
-  // Calculate unpaid for each child
-  const rows=CHILD_IDS.map(cid=>{
-    const c=D.children[cid];
-    const earned=weeklyEarned(cid);  // this week only
-    const totalUnpaid=unpaidEarned(cid);  // all time unpaid
-    return{cid,name:c.name,weekEarned:earned,totalUnpaid,pts:c.points};
-  });
-  const weekTotal=rows.reduce((s,r)=>s+r.weekEarned,0);
-
-  // Past payouts
-  const pastHtml=D.payouts.length
-    ?`<div class="sec-lbl" style="margin-top:24px">📋 정산 내역</div>`+[...D.payouts].reverse().map(p=>`
-        <div class="payout-hist-item">
-          <div><div style="font-size:13px;font-weight:600">${p.week}</div>
-            ${p.transfers.map(t=>`<div style="font-size:12px;color:var(--tx2);margin-top:2px">
-              ${t.name}: +${t.pts.toLocaleString()}P = ${W(t.pts)}</div>`).join('')}
-          </div>
-          <div style="text-align:right"><div style="font-weight:700;color:var(--am2)">${W(p.totalWon)}</div><div style="font-size:11px;color:var(--tx3)">${p.date} 이체</div></div>
-        </div>`).join('')
-    :`<div class="sec-lbl" style="margin-top:24px">📋 정산 내역</div>${empty('📂','정산 내역이 없어요','')}`;
-
+  const rows=CIDS.map(cid=>({cid,name:D.children[cid].name,wk:wkEarned(cid),unp:unpaid(cid)}));
+  const wkTotal=rows.reduce((s,r)=>s+r.wk,0);
   el.innerHTML=`
+    <div style="font-weight:700;font-size:16px;margin-bottom:4px">💰 주간 정산</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:16px">${fmt(sun)} (일) ~ ${fmt(sat)} (토)</div>
     <div class="payout-card">
-      <div style="font-size:13px;font-weight:600;margin-bottom:4px">📅 이번 주 정산 기간</div>
-      <div style="font-size:12px;color:var(--tx2);margin-bottom:14px">${wkLabel}</div>
-      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">이번 주(일~토) 승인된 미지급 포인트</div>
-      ${rows.map(r=>`
-        <div class="payout-child-row">
-          <div><div class="payout-name">${r.name}</div><div class="payout-pts">${r.weekEarned.toLocaleString()}P 이번 주 · 총 미지급 ${r.totalUnpaid.toLocaleString()}P</div></div>
-          <div class="payout-won">${W(r.weekEarned)}</div>
-        </div>`).join('')}
-      <div class="payout-total-row">
-        <div><div style="font-size:12px;font-weight:600;color:var(--am)">이번 주 총 이체 금액</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">3명 합산</div></div>
-        <div style="font-size:20px;font-weight:700;color:var(--am2)">${W(weekTotal)}</div>
-      </div>
-      <button class="btn btn-tl btn-full" style="margin-top:12px" onclick="openPayoutModal()" ${weekTotal===0?'disabled':''}>
-        💰 이번 주 정산하기 (${W(weekTotal)} 이체 완료 처리)
-      </button>
+      <div style="font-size:12px;color:var(--tx3);margin-bottom:10px">이번 주 승인된 미이체 포인트</div>
+      ${rows.map(r=>`<div class="pc-row"><div><div class="pc-name">${r.name}</div><div class="pc-pts">${r.wk.toLocaleString()}P 이번주 · 총 미이체 ${r.unp.toLocaleString()}P</div></div><div class="pc-won">${W(r.wk)}</div></div>`).join('')}
+      <div class="payout-total"><div><div style="font-size:13px;font-weight:700;color:var(--am)">이번 주 총 이체 금액</div><div style="font-size:12px;color:var(--tx2);margin-top:2px">3명 합산</div></div><div style="font-size:22px;font-weight:700;color:var(--am2)">${W(wkTotal)}</div></div>
+      <button class="btn btn-tl btn-full" style="margin-top:13px;font-size:15px;padding:13px" onclick="openPayoutModal()" ${wkTotal===0?'disabled':''}>💰 정산하기 (${W(wkTotal)} 이체)</button>
     </div>
-    ${pastHtml}`;
+    ${D.payouts.length?`<div class="sec-lbl" style="margin-top:20px">📋 정산 내역</div>`+[...D.payouts].reverse().map(p=>`<div class="ph-item"><div><div style="font-size:14px;font-weight:700">${p.week}</div>${p.transfers.map(t=>`<div style="font-size:12px;color:var(--tx2);margin-top:2px">${t.name}: ${W(t.pts)}</div>`).join('')}</div><div style="text-align:right"><div style="font-weight:700;color:var(--am2)">${W(p.totalWon)}</div><div style="font-size:11px;color:var(--tx3)">${p.date}</div></div></div>`).join(''):empty('📂','정산 내역이 없어요','')}`;
 }
-
-let pendingPayoutData=null;
+let pendingPO=null;
 function openPayoutModal(){
-  const{sun,sat}=getWeekBounds();
-  const fmt=d=>d.toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  const rows=CHILD_IDS.map(cid=>({cid,name:D.children[cid].name,pts:weeklyEarned(cid)}));
-  const total=rows.reduce((s,r)=>s+r.pts,0);
-  pendingPayoutData={rows,total};
+  const{sun,sat}=weekBounds(),fmt=d=>d.toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  const rows=CIDS.map(cid=>({cid,name:D.children[cid].name,pts:wkEarned(cid)}));
+  const total=rows.reduce((s,r)=>s+r.pts,0);pendingPO={rows,total};
   document.getElementById('payout-modal-content').innerHTML=`
-    <div style="background:var(--am-bg);border:1px solid rgba(210,153,34,.3);border-radius:var(--r2);padding:14px;margin-bottom:14px">
-      <div style="font-weight:700;font-size:15px;margin-bottom:10px">💰 이번 주 정산 확인 (${fmt(sun)}~${fmt(sat)})</div>
-      ${rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--b)">
-        <span>${r.name}</span><span style="font-weight:700;color:var(--am2)">${W(r.pts)}</span></div>`).join('')}
-      <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:16px;font-weight:700">
-        <span>합계</span><span style="color:var(--am2)">${W(total)}</span>
-      </div>
+    <div style="background:var(--am-bg);border:1.5px solid rgba(210,153,34,.3);border-radius:var(--r2);padding:15px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:10px">💰 ${fmt(sun)}~${fmt(sat)} 정산</div>
+      ${rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--b)"><span style="font-size:15px">${r.name}</span><span style="font-weight:700;color:var(--am2);font-size:15px">${W(r.pts)}</span></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:17px;font-weight:700"><span>합계</span><span style="color:var(--am2)">${W(total)}</span></div>
     </div>
-    <p style="font-size:13px;color:var(--tx2)">위 금액을 각 자녀 통장에 이체 완료 후 버튼을 눌러 주세요. 포인트는 '이체됨' 상태로 변경됩니다.</p>`;
+    <p style="font-size:14px;color:var(--tx2);line-height:1.7">위 금액을 각 자녀 통장에 이체 후 아래 버튼을 눌러 주세요.</p>`;
   openO('payout-modal');
 }
-
 function confirmPayout(){
-  if(!pendingPayoutData)return;
-  const{sun,sat}=getWeekBounds();
-  const fmt=d=>d.toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  const weekLabel=`${fmt(sun)} ~ ${fmt(sat)}`;
-
-  // Mark this week's history items as paid
-  pendingPayoutData.rows.forEach(r=>{
-    const c=D.children[r.cid];
-    (c.history||[]).filter(h=>h.pts>0&&!h.paid&&h.ts&&new Date(h.ts)>=sun&&new Date(h.ts)<=sat).forEach(h=>h.paid=true);
-  });
-
-  // Record payout
-  D.payouts.push({
-    id:uid(),week:weekLabel,date:new Date().toLocaleDateString('ko-KR'),
-    transfers:pendingPayoutData.rows.map(r=>({cid:r.cid,name:r.name,pts:r.pts})),
-    totalWon:pendingPayoutData.total
-  });
-
-  save();closeO('payout-modal');renderPayout();updateParChildPts();
-  toast(`💰 정산 완료! ${W(pendingPayoutData.total)} 이체 처리됨`);
+  if(!pendingPO)return;
+  const{sun,sat}=weekBounds(),fmt=d=>d.toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  pendingPO.rows.forEach(r=>{(D.children[r.cid].history||[]).filter(h=>h.pts>0&&!h.paid&&h.ts&&new Date(h.ts)>=sun&&new Date(h.ts)<=sat).forEach(h=>h.paid=true);});
+  D.payouts.push({id:uid(),week:`${fmt(sun)}~${fmt(sat)}`,date:new Date().toLocaleDateString('ko-KR'),transfers:pendingPO.rows.map(r=>({cid:r.cid,name:r.name,pts:r.pts})),totalWon:pendingPO.total});
+  save();closeO('payout-modal');renderPayout();updPtsSummary();toast(`💰 정산 완료! ${W(pendingPO.total)} 이체 처리됨`);
 }
 
-// ── Settings ──
+// ── 설정 ──
 function loadSettings(){
   const n=D.children;
-  document.getElementById('set-n1').value=n.c1.name;
-  document.getElementById('set-n2').value=n.c2.name;
-  document.getElementById('set-n3').value=n.c3.name;
-  document.getElementById('set-g1').value=n.c1.grade||'';
-  document.getElementById('set-g2').value=n.c2.grade||'';
-  document.getElementById('set-g3').value=n.c3.grade||'';
-  document.getElementById('set-limit').value=D.weeklyLimit||DEF_LIMIT;
-  document.getElementById('set-ppm').value=D.pointPerMin||DEF_PPM;
-  document.getElementById('set-pin').value='';
+  document.getElementById('sn1').value=n.c1.name;document.getElementById('sn2').value=n.c2.name;document.getElementById('sn3').value=n.c3.name;
+  document.getElementById('sg1').value=n.c1.grade||'';document.getElementById('sg2').value=n.c2.grade||'';document.getElementById('sg3').value=n.c3.grade||'';
+  document.getElementById('s-limit').value=D.weeklyLimit||DEF_LIMIT;
+  document.getElementById('s-ppm').value=D.pointPerMin||DEF_PPM;
+  document.getElementById('s-pin').value='';
 }
 function saveSettings(){
-  D.children.c1.name=document.getElementById('set-n1').value.trim()||D.children.c1.name;
-  D.children.c2.name=document.getElementById('set-n2').value.trim()||D.children.c2.name;
-  D.children.c3.name=document.getElementById('set-n3').value.trim()||D.children.c3.name;
-  D.children.c1.grade=document.getElementById('set-g1').value.trim();
-  D.children.c2.grade=document.getElementById('set-g2').value.trim();
-  D.children.c3.grade=document.getElementById('set-g3').value.trim();
-  const lim=parseInt(document.getElementById('set-limit').value);if(lim>=1000)D.weeklyLimit=lim;
-  const ppm=parseInt(document.getElementById('set-ppm').value);if(ppm>=1)D.pointPerMin=ppm;
-  const pin=document.getElementById('set-pin').value.trim();
+  ['c1','c2','c3'].forEach((cid,i)=>{const n=document.getElementById('sn'+(i+1)).value.trim();if(n)D.children[cid].name=n;D.children[cid].grade=document.getElementById('sg'+(i+1)).value.trim();});
+  const lim=parseInt(document.getElementById('s-limit').value);if(lim>=1000)D.weeklyLimit=lim;
+  const ppm=parseInt(document.getElementById('s-ppm').value);if(ppm>=1)D.pointPerMin=ppm;
+  const pin=document.getElementById('s-pin').value.trim();
   if(pin){if(!/^\d{4,6}$/.test(pin)){toast('PIN은 숫자 4~6자리');return;}D.pin=pin;}
   save();toast('✅ 설정 저장됨');
-  // Update login card grades
-  ['c1','c2','c3'].forEach((cid,i)=>{
-    const chips=document.querySelectorAll('.chip');
-    if(chips[i])chips[i].textContent=D.children[cid].grade||'';
-  });
+  CIDS.forEach((cid,i)=>{const el=document.getElementById('chip-'+cid);if(el)el.textContent=D.children[cid].grade||'';});
 }
-function resetAll(){
-  if(!confirm('정말 모든 데이터를 초기화할까요?'))return;
-  localStorage.removeItem('lms5');D=defData();toast('🗑️ 초기화됨');showSc('login');
+function resetAll(){if(!confirm('정말 모든 데이터를 초기화할까요?'))return;try{localStorage.removeItem(SAVE_KEY);}catch(e){}D=defData();toast('🗑️ 초기화됨');showSc('login');}
+
+// ═══════════════════════════════════
+// 백업 · 복원
+// ═══════════════════════════════════
+function exportData(){
+  try{
+    const json=JSON.stringify(D,null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const date=new Date().toISOString().split('T')[0];
+    const a=document.createElement('a');
+    a.href=url;a.download=`스터디트래커_백업_${date}.json`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+    toast('📤 백업 파일이 저장됐어요');
+  }catch(e){
+    // iOS Safari는 Blob 다운로드 불가 → 텍스트로 복사 안내
+    const json=JSON.stringify(D);
+    const ta=document.createElement('textarea');
+    ta.value=json;ta.style.cssText='position:fixed;opacity:0;top:0;left:0;width:1px;height:1px;';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('📋 백업 데이터가 클립보드에 복사됐어요\n메모앱에 붙여넣어 저장하세요');}
+    catch(e2){alert('아래 데이터를 메모앱에 복사해서 저장해 주세요:\n\n'+json.slice(0,200)+'...');}
+    document.body.removeChild(ta);
+  }
 }
 
-// ══════════════════════════════════
-// OVERLAY & MISC
-// ══════════════════════════════════
-function openO(id){document.getElementById(id).classList.add('on');}
-function closeO(id){document.getElementById(id).classList.remove('on');}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
-
-function showFull(logId){
-  const log=pch().studyLogs.find(l=>l.id===logId);
-  if(!log?.image)return;
-  document.getElementById('img-fs-img').src=log.image;
-  document.getElementById('img-fs').classList.add('on');
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  if(!confirm('현재 데이터를 백업 파일로 덮어씁니다.\n계속할까요?')){input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      // 기본 구조 검증
+      if(!parsed.children||!parsed.pin){toast('❌ 올바른 백업 파일이 아니에요');return;}
+      D=parsed;save();
+      toast('✅ 데이터 복원 완료!');
+      showSc('login');
+    }catch(err){toast('❌ 파일을 읽을 수 없어요');}
+    input.value='';
+  };
+  reader.readAsText(file);
 }
 
-// ══════════════════════════════════
-// INIT
-// ══════════════════════════════════
-showSc('login');
-// Update login chips from data
-['c1','c2','c3'].forEach((cid,i)=>{
-  const chips=document.querySelectorAll('.chip');
-  if(chips[i])chips[i].textContent=D.children[cid].grade||'';
-});
-
-// ══════════════════════════════════
-// PWA: 아이콘 자동 생성 (안전한 방식)
-// ══════════════════════════════════
+// ─ 자동 백업 알림: 앱 실행 후 마지막 백업으로부터 5일 경과 시 ─
 (function(){
   try{
-    // Canvas로 앱 아이콘 생성
-    function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
-    const cv=document.createElement('canvas');cv.width=cv.height=512;
-    const ctx=cv.getContext('2d');
-    ctx.fillStyle='#0d1117';rr(ctx,0,0,512,512,80);ctx.fill();
-    ctx.fillStyle='#1c2128';rr(ctx,16,16,480,480,70);ctx.fill();
-    ctx.strokeStyle='rgba(210,153,34,0.5)';ctx.lineWidth=6;rr(ctx,18,18,476,476,68);ctx.stroke();
-    ctx.font='260px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('📚',256,230);
-    ctx.fillStyle='#e3b341';ctx.font='bold 50px sans-serif';ctx.fillText('스터디 트래커',256,415);
-    const ico=cv.toDataURL('image/png');
-    // apple-touch-icon 등록
-    const lk=document.createElement('link');lk.rel='apple-touch-icon';lk.href=ico;document.head.appendChild(lk);
+    const last=parseInt(localStorage.getItem('last_backup')||'0');
+    const diff=(Date.now()-last)/(1000*60*60*24);
+    if(last===0){localStorage.setItem('last_backup',Date.now().toString());return;}
+    if(diff>=5){
+      setTimeout(()=>{
+        const banner=document.createElement('div');
+        banner.style.cssText='position:fixed;top:calc(var(--safe-top) + 10px);left:12px;right:12px;background:#1c2128;border:1.5px solid rgba(56,189,248,.5);border-radius:12px;padding:14px 16px;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+        banner.innerHTML=`<span style="font-size:24px;flex-shrink:0">⚠️</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e6edf3">백업 필요</div>
+          <div style="font-size:12px;color:#8b949e;margin-top:2px">${Math.floor(diff)}일째 백업 안 했어요. 7일 지나면 iOS가 데이터를 지울 수 있어요.</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button onclick="exportData();localStorage.setItem('last_backup',Date.now().toString());this.closest('div[style]').remove();" style="background:var(--tl2);color:#000;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">백업</button>
+            <button onclick="this.closest('div[style]').remove();" style="background:transparent;color:#8b949e;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">나중에</button>
+          </div>`;
+        document.body.appendChild(banner);
+      },1500);
+    }
   }catch(e){}
 })();
 
-// ══════════════════════════════════
-// PWA 설치 안내 배너 (iOS Safari)
-// ══════════════════════════════════
+// ── 이미지 ──
+function showFull(logId){const log=pch().studyLogs.find(l=>l.id===logId);if(!log?.image)return;document.getElementById('img-fs-img').src=log.image;document.getElementById('img-fs').classList.add('on');}
+
+// ═══════════════════════════════════
+// 앱 아이콘 생성 (try-catch로 안전하게)
+// ═══════════════════════════════════
 (function(){
   try{
-    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
-    const isStandalone=window.navigator.standalone===true;
-    const dismissed=localStorage.getItem('pwa_ok');
-    if(isIOS&&!isStandalone&&!dismissed){
-      const b=document.createElement('div');
-      b.style.cssText='position:fixed;bottom:0;left:0;right:0;padding:14px 16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));background:#1c2128;border-top:2px solid rgba(210,153,34,0.5);z-index:9999;display:flex;align-items:center;gap:12px;';
-      b.innerHTML=`<span style="font-size:26px;flex-shrink:0">📲</span>
-        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e6edf3">홈 화면 앱으로 설치</div>
-        <div style="font-size:11px;color:#8b949e;margin-top:2px">하단 <b style="color:#e3b341">공유(□↑)</b> → <b style="color:#e3b341">홈 화면에 추가</b> → 추가</div></div>
-        <button style="background:rgba(255,255,255,0.1);border:none;color:#8b949e;font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer" onclick="this.parentElement.remove();localStorage.setItem('pwa_ok','1')">✕</button>`;
-      document.body.appendChild(b);
-    }
-  }catch(e){}
+    const cv=document.createElement('canvas');cv.width=cv.height=512;
+    const ctx=cv.getContext('2d');
+    // 배경
+    ctx.fillStyle='#0d1117';ctx.beginPath();ctx.roundRect(0,0,512,512,80);ctx.fill();
+    ctx.fillStyle='#1c2128';ctx.beginPath();ctx.roundRect(16,16,480,480,70);ctx.fill();
+    ctx.strokeStyle='rgba(210,153,34,0.5)';ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(18,18,476,476,68);ctx.stroke();
+    // 이모지
+    ctx.font='260px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('📚',256,220);
+    // 텍스트
+    ctx.fillStyle='#e3b341';ctx.font='bold 48px -apple-system,sans-serif';ctx.fillText('스터디 트래커',256,410);
+    const ico=cv.toDataURL('image/png');
+    const lk=document.createElement('link');lk.rel='apple-touch-icon';lk.href=ico;document.head.appendChild(lk);
+  }catch(e){}// 실패해도 무시
+})();
+
+// ═══════════════════════════════════
+// 시작
+// ═══════════════════════════════════
+(function(){
+  // 학년 칩 업데이트
+  CIDS.forEach(cid=>{const el=document.getElementById('chip-'+cid);if(el)el.textContent=D.children[cid].grade||'';});
+  // 첫 방문이면 설치 안내, 아니면 로그인
+  const standalone=window.navigator.standalone===true||window.matchMedia('(display-mode:standalone)').matches;
+  const guideDone=localStorage.getItem('guide_done');
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS&&!standalone&&!guideDone){showSc('guide');}
+  else{showSc('login');}
 })();
 </script>
 </body>
