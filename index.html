@@ -9,6 +9,20 @@
 <meta name="apple-mobile-web-app-title" content="스터디 트래커">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d1117">
+<!-- 캐시 완전 비활성화 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+// 앱 버전 — 업데이트마다 숫자 변경으로 캐시 강제 초기화
+const APP_VER='2025-v8';
+if(localStorage.getItem('app_ver')!==APP_VER){
+  // 구버전 감지: 앱 캐시 관련 항목만 초기화 (데이터는 보존)
+  localStorage.setItem('app_ver',APP_VER);
+  // Service Worker 캐시 삭제
+  if('caches' in window){caches.keys().then(ks=>ks.forEach(k=>caches.delete(k)));}
+}
+</script>
 <style>
 /* ── 외부 폰트 없이 아이폰 기본 한글 폰트 사용 ── */
 :root{
@@ -489,10 +503,10 @@ button{-webkit-user-select:none;user-select:none;font-family:inherit;}
         <hr style="border:none;border-top:1px solid var(--b);margin:16px 0">
         <div style="font-weight:700;font-size:15px;margin-bottom:8px">🤖 AI 퀴즈 설정</div>
         <div style="font-size:13px;color:var(--tx2);margin-bottom:12px;line-height:1.7">
-          Google Gemini API 키를 등록하면 AI 퀴즈 기능을 <b style="color:var(--gn2)">무료</b>로 사용할 수 있어요.<br>
-          <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--tl2)">aistudio.google.com/apikey</a> 에서 구글 로그인 후 무료 발급
+          Cloudflare Worker 주소를 등록하면 AI 퀴즈가 작동합니다.<br>
+          <span style="color:var(--tx3);font-size:12px">설정 방법은 아래 안내를 참고하세요</span>
         </div>
-        <div class="fr"><label>Google Gemini API Key</label><input type="password" id="s-apikey" placeholder="AIza..."></div>
+        <div class="fr"><label>Cloudflare Worker URL</label><input type="url" id="s-worker" placeholder="https://your-worker.workers.dev"></div>
         <div id="apikey-status" style="font-size:12px;margin-top:-8px;margin-bottom:12px"></div>
         <hr style="border:none;border-top:1px solid var(--b);margin:16px 0">
         <div class="fr"><label>PIN 변경 (숫자 4~6자리)</label><input type="password" id="s-pin" maxlength="6" inputmode="numeric" placeholder="새 PIN"></div>
@@ -806,47 +820,112 @@ function compressImg(file,cb){
 async function genQuiz(){
   const subj=document.getElementById('sl-subj').value,content=document.getElementById('sl-content').value.trim(),vol=document.getElementById('sl-vol').value.trim();
   if(content.length<10){toast('공부 내용을 10자 이상 입력해 주세요');return;}
-  const apiKey=localStorage.getItem('gemini_key')||'';
-  if(!apiKey){
-    document.getElementById('quiz-area').innerHTML='<div style="background:var(--am-bg);border:1px solid rgba(210,153,34,.3);border-radius:9px;padding:12px;font-size:13px;color:var(--am2)">⚠️ AI 퀴즈를 사용하려면 부모님이 설정에서 Gemini API 키를 등록해야 합니다.<br><span style="font-size:12px;color:var(--tx3);margin-top:4px;display:block">부모님 → 설정 탭 → 🤖 AI 퀴즈 설정</span></div>';
-    return;
-  }
+  const workerUrl=localStorage.getItem('worker_url')||'';
   const btn=document.getElementById('quiz-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
   document.getElementById('quiz-area').innerHTML='<div style="text-align:center;padding:14px;color:var(--tx2);font-size:13px">🤖 퀴즈 만드는 중...</div>';
-  try{
-    const prompt=`너는 한국 중학생을 가르치는 선생님이야. 아래 공부 내용을 바탕으로 객관식 퀴즈 3문제를 만들어줘.
 
-과목: ${subj}
-학습량: ${vol||'미기재'}
-공부 내용: ${content}
-
-반드시 아래 JSON 형식만 출력해. 코드블록이나 설명 없이 JSON 배열만.
-[{"q":"질문","options":["①첫번째","②두번째","③세번째","④네번째"],"answer":0}]
-
-정답은 0~3 인덱스. 중학생 수준으로.`;
-
-    const res=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
+  if(workerUrl){
+    try{
+      const prompt=`너는 한국 중학생을 가르치는 선생님이야. 아래 공부 내용을 바탕으로 객관식 퀴즈 3문제를 만들어줘.\n\n과목: ${subj}\n학습량: ${vol||'미기재'}\n공부 내용: ${content}\n\n반드시 아래 JSON 형식만 출력해. 코드블록이나 설명 없이 JSON 배열만.\n[{"q":"질문","options":["①첫번째","②두번째","③세번째","④네번째"],"answer":0}]\n\n정답은 0~3 인덱스. 중학생 수준으로.`;
+      const res=await fetch(workerUrl,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:1000}})
-      }
-    );
-    if(!res.ok){
-      const err=await res.json().catch(()=>({}));
-      throw new Error(err.error?.message||'API 오류 '+res.status);
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:800}})
+      });
+      if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'오류 '+res.status);}
+      const data=await res.json();
+      const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+      curQuiz=JSON.parse(txt.replace(/```json|```/g,'').trim());
+      userAns=new Array(curQuiz.length).fill(null);
+      renderQuiz();btn.innerHTML='🔄 재생성';btn.disabled=false;
+      return;
+    }catch(e){
+      console.warn('Worker 호출 실패, 오프라인 전환:',e.message);
     }
-    const data=await res.json();
-    const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    const clean=txt.replace(/```json|```/g,'').trim();
-    curQuiz=JSON.parse(clean);
+  }
+
+  // Worker URL 미설정 시 오프라인 퀴즈
+  try{
+    curQuiz=makeOfflineQuiz(subj,content);
     userAns=new Array(curQuiz.length).fill(null);
     renderQuiz();btn.innerHTML='🔄 재생성';btn.disabled=false;
-  }catch(e){
-    document.getElementById('quiz-area').innerHTML=`<div style="background:var(--rd-bg);border-radius:9px;padding:11px;font-size:13px;color:#ff7b72">❌ 오류: ${e.message||'연결 실패'}<br><span style="font-size:11px;color:var(--tx3)">API 키를 확인하거나 퀴즈 없이 제출하세요</span></div>`;
+    if(!workerUrl){
+      document.getElementById('quiz-area').insertAdjacentHTML('afterbegin',
+        '<div style="background:var(--am-bg);border:1px solid rgba(210,153,34,.3);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--am2);margin-bottom:10px">💡 오프라인 퀴즈 모드 — 부모님 설정에서 Worker URL 등록 시 AI 퀴즈로 업그레이드</div>'
+      );
+    }
+  }catch(e2){
+    document.getElementById('quiz-area').innerHTML='<div style="background:var(--rd-bg);border-radius:9px;padding:11px;font-size:13px;color:#ff7b72">❌ 퀴즈 생성 실패. 퀴즈 없이 제출하세요.</div>';
     btn.innerHTML='다시 시도';btn.disabled=false;
   }
+}
+
+function makeOfflineQuiz(subj,content){
+  // 공부 내용을 문장/키워드로 분해
+  const sentences=content.split(/[.\n]+/).map(s=>s.trim()).filter(s=>s.length>3);
+  const words=content.replace(/[^\w\s가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1);
+  // 2글자 이상 고유 단어 추출
+  const keywords=[...new Set(words.filter(w=>w.length>=2&&!/^[0-9]+$/.test(w)))];
+  const quiz=[];
+
+  // ── 퀴즈 1: 핵심 내용 확인 (빈칸 채우기 스타일) ──
+  if(sentences.length>0&&keywords.length>=4){
+    const s=sentences[0];
+    const kw=keywords.find(k=>s.includes(k)&&k.length>=2)||keywords[0];
+    const wrongs=keywords.filter(k=>k!==kw).slice(0,3);
+    while(wrongs.length<3)wrongs.push(['없음','관계없음','해당없음'][wrongs.length]);
+    const opts=[kw,...wrongs].sort(()=>Math.random()-.5);
+    const ans=opts.indexOf(kw);
+    quiz.push({
+      q:`"${s.replace(kw,'( ? )')}" — 빈칸에 알맞은 말은?`,
+      options:opts.map((o,i)=>`${['①','②','③','④'][i]}${o}`),
+      answer:ans
+    });
+  }
+
+  // ── 퀴즈 2: 오늘 공부한 내용인지 판별 ──
+  if(sentences.length>=2&&keywords.length>=3){
+    const real=sentences[Math.min(1,sentences.length-1)];
+    const fakes=[
+      `${subj}와 전혀 관계없는 내용이다`,
+      `오늘 배우지 않은 단원의 내용이다`,
+      `위 내용은 교과서에 없는 내용이다`
+    ];
+    const opts=[real,...fakes].sort(()=>Math.random()-.5);
+    const ans=opts.indexOf(real);
+    quiz.push({
+      q:`다음 중 오늘 ${subj} 시간에 공부한 내용으로 올바른 것은?`,
+      options:opts.map((o,i)=>`${['①','②','③','④'][i]}${o}`),
+      answer:ans
+    });
+  }
+
+  // ── 퀴즈 3: 키워드 연관 확인 ──
+  if(keywords.length>=4){
+    const kw1=keywords[0],kw2=keywords[1]||keywords[0];
+    const fakeWords=['포도당','핵분열','미적분','관성법칙','공리주의','대기압','삼투압','전자기력']
+      .filter(f=>!content.includes(f));
+    const fake1=fakeWords[0]||'관련없는용어';
+    const fake2=fakeWords[1]||'다른단원내용';
+    const correctAnswer=`${kw1}과(와) ${kw2}`;
+    const opts=[correctAnswer,fake1,fake2,`${kw1}은 오늘 배우지 않음`].sort(()=>Math.random()-.5);
+    const ans=opts.indexOf(correctAnswer);
+    quiz.push({
+      q:`오늘 ${subj} 공부에서 함께 다룬 개념을 올바르게 짝지은 것은?`,
+      options:opts.map((o,i)=>`${['①','②','③','④'][i]}${o}`),
+      answer:ans
+    });
+  }
+
+  // 부족하면 기본 퀴즈 채우기
+  while(quiz.length<3){
+    quiz.push({
+      q:`오늘 ${subj} 공부를 통해 새롭게 알게 된 내용이 있나요?`,
+      options:['①있다 — 내용을 충분히 이해했다','②대체로 이해했다','③일부만 이해했다','④다시 공부가 필요하다'],
+      answer:0
+    });
+  }
+  return quiz.slice(0,3);
 }
 function renderQuiz(){
   if(!curQuiz)return;
@@ -1111,11 +1190,11 @@ function loadSettings(){
   document.getElementById('s-ppm').value=D.pointPerMin||DEF_PPM;
   document.getElementById('s-pin').value='';
   // API 키 상태 표시
-  const savedKey=localStorage.getItem('gemini_key')||'';
-  document.getElementById('s-apikey').value=savedKey?'저장됨 (AIza••••)':'';
+  const savedUrl=localStorage.getItem('worker_url')||'';
+  document.getElementById('s-worker').value=savedUrl||'';
   const st=document.getElementById('apikey-status');
-  if(savedKey){st.textContent='✅ API 키 저장됨 — AI 퀴즈 사용 가능';st.style.color='var(--gn2)';}
-  else{st.textContent='⚠️ API 키 없음 — AI 퀴즈 비활성화';st.style.color='#ff7b72';}
+  if(savedUrl){st.textContent='✅ Worker URL 저장됨 — AI 퀴즈 사용 가능';st.style.color='var(--gn2)';}
+  else{st.textContent='⚠️ Worker URL 없음 — 오프라인 퀴즈 모드';st.style.color='#ff7b72';}
 }
 function saveSettings(){
   ['c1','c2','c3'].forEach((cid,i)=>{
@@ -1128,12 +1207,11 @@ function saveSettings(){
   const pin=document.getElementById('s-pin').value.trim();
   if(pin){if(!/^\d{4,6}$/.test(pin)){toast('PIN은 숫자 4~6자리');return;}D.pin=pin;}
   // API 키 저장 (실제 키값 입력했을 때만)
-  const apikey=document.getElementById('s-apikey').value.trim();
-  if(apikey&&apikey.startsWith('AIza')){
-    localStorage.setItem('gemini_key',apikey);
+  const workerUrl=document.getElementById('s-worker').value.trim();
+  if(workerUrl&&workerUrl.startsWith('https://')){
+    localStorage.setItem('worker_url',workerUrl);
     const st=document.getElementById('apikey-status');
-    st.textContent='✅ API 키 저장됨 — AI 퀴즈 사용 가능';st.style.color='var(--gn2)';
-    document.getElementById('s-apikey').value='저장됨 (AIza••••)';
+    st.textContent='✅ Worker URL 저장됨 — AI 퀴즈 사용 가능';st.style.color='var(--gn2)';
   }
   save();toast('✅ 설정 저장됨');
   CIDS.forEach(cid=>{const el=document.getElementById('chip-'+cid);if(el)el.textContent=D.children[cid].grade||'';});
